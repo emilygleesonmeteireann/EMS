@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 # Copyright (c) Météo France (2014-)
 # This software is governed by the CeCILL-C license under French law.
@@ -35,7 +35,7 @@ def readarp(fin):
         tmp = toto[0].strip().split(',')[0]
         namelist[nam_tmp][param].append(tmp)
       else:
-        print 'case unexpected:', line
+        print ("case unexpected:", line)
 
   return namelist
 
@@ -47,7 +47,8 @@ def writearp(nam,fout):
   f = open(fout,'w')
 
   for nn in sorted(nam.keys()):
-    print >>f, '&' + nn
+#    print >>f, '&' + nn
+    print('&'+nn+'\n', end="", file=f)
     for param in sorted(nam[nn].keys()):
       if param in ['CFP2DF(1)','CFP3DF(1)','CFPCFU(1)','CFPPHY(1)','CFPXFU(1)']:
         tmp = '  ' + param + '='	 
@@ -60,10 +61,9 @@ def writearp(nam,fout):
       else:
         tmp = '  ' + param + '='	    
         for val in nam[nn][param]:
-          tmp = tmp + val + ','
-      print >>f, tmp	 
-     
-    print >>f, '/'
+          tmp = tmp + val + ',\n'
+      print(tmp, end="", file=f)
+    print("/\n", end="", file=f)
 
 
   f.close()
@@ -103,7 +103,7 @@ def readsurfex(fin):
           tmp = toto[0].strip().split(',')[0]
           namelist[nam_tmp][param].append(tmp)
         else:
-          print 'case unexpected 1:', line
+          print ("case unexpected 1:", line)
     else:
       #print tmp0[0]
       tmp1 = line.strip().split()
@@ -122,7 +122,7 @@ def readsurfex(fin):
           tmp = toto[0].strip().split(',')[0]
           namelist[nam_tmp][param].append(tmp)
         else:
-          print 'case unexpected 2:', line
+          print ("case unexpected 2:", line)
       else:
         toto = line.split('=')
         if len(toto) == 2:
@@ -134,7 +134,7 @@ def readsurfex(fin):
           tmp = toto[0].strip().split(',')[0]
           namelist[nam_tmp][param].append(tmp)
         else:
-          print 'case unexpected 3:', line          
+          print ("case unexpected 3:", line)
 
   return namelist
 
@@ -147,7 +147,8 @@ def writesurfex(nam,fout):
   f = open(fout,'w')
 
   for nn in sorted(nam.keys()):
-    print >>f, '&' + nn
+#    print >>f, '&' + nn
+    print('&'+nn+'\n', end="", file=f)
     for param in sorted(nam[nn].keys()):
       if len(param) <= 16:	    
         tmp = '  ' + param + ' '*(16-len(param)) +'= '	    
@@ -155,8 +156,10 @@ def writesurfex(nam,fout):
         tmp = '  ' + param + ' = '
       for val in nam[nn][param]:
 #        print nn, param, val
-        tmp = tmp + val + ','
-      print >>f, tmp	  
-    print >>f, '/'
+        tmp = tmp + val + ',\n'
+      print(tmp, end="", file=f)
+    print("/\n", end="", file=f)
+
+
 
   f.close()
