@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on 27 November 2019
@@ -15,10 +15,10 @@ import netCDF4 as nc
 import numpy as np
 from scipy import interpolate
 
-from Axis import Axis
+from .Axis import Axis
 
-from variables_attributes import attributes as var_attributes
-import plotbasics
+from .variables_attributes import attributes as var_attributes
+from . import plotbasics 
 
 lwarnings = False
 
@@ -73,7 +73,7 @@ class Variable:
                 #elif ax.id == 'lon':
                 #    self.lon = ax
                 else:
-                    print 'Axis unexpected:', ax.id
+                    print ("Axis unexpected:", ax.id)
                     ax.info()
                     sys.exit()
 
@@ -135,12 +135,12 @@ class Variable:
             self.pressure.set_coordinates(self.coord)
 
     def info(self):
-        print '-'*5, 'Variable:', self.id
-        print '-'*10, 'Name:', self.name
-        print '-'*10, 'Units:', self.units
-        print '-'*10, 'Axes:', self.axlist
-        print '-'*10, 'Coordinates:', self.coord
-        print '-'*10, 'mean: {0}; min: {1}; max: {2}'.format(np.average(self.data),np.amin(self.data),np.amax(self.data))
+        print ("-", "Variable:", self.id)
+        print ("-", "Name:", self.name)
+        print ("-", "Units:", self.units)
+        print ("-", "Axes:", self.axlist)
+        print ("-", "Coordinates:", self.coord)
+        print ("-", "mean: {0}; min: {1}; max: {2}", format(np.average(self.data),np.amin(self.data),np.amax(self.data)))
         
 
     def set_coordinates(self, *coord):
@@ -150,7 +150,7 @@ class Variable:
     def set_level(self,lev=None):
 
         if lev is None:
-            if lwarnings: print 'WARNING: level is None. Nothing to do'
+            if lwarnings: print ("WARNING: level is None. Nothing to do")
         else:
             self.level = lev
             newaxlist = []
@@ -188,7 +188,7 @@ class Variable:
         if write_data:
             if self.data is not None:
                 if self.id in filein.variables:
-                    if lwarnings: print 'WARNING: {0} already if netCDF file. Not overwritten'.format(self.id)
+                    if lwarnings: print ("WARNING: {0} already if netCDF file. Not overwritten", format(self.id))
                 else:
                     tmp = filein.createVariable(self.id, "f8", self.axlist)
                     tmp[:] = self.data
@@ -199,13 +199,13 @@ class Variable:
         if write_vertical and lvert:
             if self.height is not None:
                 if self.height.id in filein.variables:
-                    if lwarnings: print 'WARNING: {0} already if netCDF file. Not overwritten'.format(self.height.id)
+                    if lwarnings: print ("WARNING: {0} already if netCDF file. Not overwritten", format(self.height.id))
                 else:
                     self.height.write(filein)
 
             if self.pressure is not None:
                 if self.pressure.id in filein.variables:
-                    if lwarnings: print 'WARNING: {0} already if netCDF file. Not overwritten'.format(self.pressure.id)
+                    if lwarnings: print ("WARNING: {0} already if netCDF file. Not overwritten", format(self.pressure.id))
                 else:
                     self.pressure.write(filein)
 
@@ -231,7 +231,7 @@ class Variable:
                 levs = self.level.data
                 zlabel = 'Altitude [{0}]'.format(levunits)
             else:
-                print "ERROR: unexpected case for levunits:", levunits, self.level.units
+                print ("ERROR: unexpected case for levunits:", levunits, self.level.units)
             if not(var2 is None):
                 if levunits is None:
                     levs2 = var2.level.data
@@ -244,7 +244,7 @@ class Variable:
                 elif (levunits == 'km' and var2.level.units == 'km') or (levunits == 'm' and var2.level.units == 'm'):
                     levs2 = var2.level.data
                 else:
-                    print "ERROR: unexpected case for levunits (var2):", levunits, var2.level.units
+                    print ("ERROR: unexpected case for levunits (var2):", levunits, var2.level.units)
 
 
         if not(self.time is None) and not(self.level is None):
@@ -278,7 +278,7 @@ class Variable:
                         time = self.time.data/86400.
                         tunits = self.time.units.replace("seconds","days")
                     else:
-                        print "ERROR: timeunits unexpected for plotting:", timeunits
+                        print ("ERROR: timeunits unexpected for plotting:", timeunits)
                         sys.exit()
 
                 plotbasics.plot2D(time,levs,self.data[:,:]*coef,
@@ -309,7 +309,7 @@ class Variable:
                             time2 = var2.time.data/86400.
                         tunits = self.time.units.replace("seconds","days")
                     else:
-                        print "ERROR: timeunits unexpected for plotting:", timeunits
+                        print ("ERROR: timeunits unexpected for plotting:", timeunits)
                         sys.exit()
 
                 if var2 is None:
@@ -328,7 +328,7 @@ class Variable:
                             rep_images=rep_images,name='{0}.png'.format(self.id),
                             label=label,label2=label2)
             else:
-                print 'no plot for variable', self.id
+                print ("no plot for variable", self.id)
 
         elif not(self.level is None):
 
@@ -351,16 +351,16 @@ class Variable:
                         yunits=levunits)
 
         else:
-            print 'no plot for variable', self.id
+            print ("no plot for variable", self.id)
 
     def interpol_time(self,time=None):
 
         if self.time is None:
-            print 'ERROR: time interpolation requested for variable {0} which does not have a time axis'.format(self.id)
+            print ("ERROR: time interpolation requested for variable {0} which does not have a time axis", format(self.id))
             raise ValueError
  
         if time is None:
-            if lwarnings: print 'WARNING: time is None. Thus no time interpolation'
+            if lwarnings: print ("WARNING: time is None. Thus no time interpolation")
             return self
 
         ntout, = time.data.shape
@@ -377,7 +377,7 @@ class Variable:
 
         if linit:
 
-            if lwarnings: print 'WARNING: Variable "{0}" is an initial state variable. No need for time interpolation.'.format(self.id)
+            if lwarnings: print ("WARNING: Variable ", {0}, " is an initial state variable. No need for time interpolation.", format(self.id))
             return self
 
         elif l2D: # time,level variable
@@ -423,12 +423,12 @@ class Variable:
 
         if self.level is None:
             if lwarnings: 
-                print 'WARNING: vertical interpolation requested for variable {0}, which does not have a level axis'.format(self.id)
-                print 'WARNING: simply return original variable'
+                print ("WARNING: vertical interpolation requested for variable {0}, which does not have a level axis", format(self.id))
+                print ("WARNING: simply return original variable")
             return self
 
         if height is None and pressure is None:
-            if lwarnings: print "WARNING: height and pressure are None. Thus no vertical interpolaton"
+            if lwarnings: print ("WARNING: height and pressure are None. Thus no vertical interpolaton")
             return self
 
         ntin, nlevin = self.data.shape
@@ -481,7 +481,7 @@ class Variable:
 
         else:
 
-            print 'ERROR: case unexpected for vertical interpolation of variable', self.id
+            print ("ERROR: case unexpected for vertical interpolation of variable", self.id)
             raise ValueError
 
         return Variable(self.id, data=data, name=self.name, units=self.units,
@@ -530,7 +530,7 @@ def read(name,filein):
         pressure_units = filein[var_vert_id].units
 
     #else:
-    #    print 'ERROR: vertical variable for {0} is unexpected'.format(name)
+    #    print ("ERROR: vertical variable for {0} is unexpected'.format(name)
     #    raise ValueError
 
     try:
@@ -624,7 +624,7 @@ def interpol(var,levout=None,timeout=None,log=False):
         varout = Variable(var.id,name=var.name,units=var.units,data=tmp,level=levout,lat=var.lat,lon=var.lon)
 
     else:
-        print 'ERROR: Weird, time and level are None for var=', var
+        print ("ERROR: Weird, time and level are None for var=", var)
         sys.exit()
 
     return varout

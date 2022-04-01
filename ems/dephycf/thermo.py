@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on 27 November 2019
@@ -12,7 +12,8 @@ import math
 
 import numpy as np
 
-import constants as cc
+from . import constants as CC
+
 
 def rt2qt(rt,units='kg kg-1'):
 
@@ -21,7 +22,7 @@ def rt2qt(rt,units='kg kg-1'):
     elif units == 'g kg-1':
         return rt/(1.+rt/1000.)
     else:
-        print 'units unknown:', units
+        print ("units unknown:", units)
         sys.exit()
 
 def qt2rt(qt,units='kg kg-1'):
@@ -31,16 +32,16 @@ def qt2rt(qt,units='kg kg-1'):
     elif units == 'g kg-1':
         return qt/(1.-qt/1000.)
     else:
-        print 'units unknown:', units
+        print ("units unknown:", units)
         sys.exit()
 
 def advrt2advqt(rt=None,advrt=None,rt_units='kg kg-1'):
 
     if rt is None:
-        print "rt is missing"
+        print ("rt is missing")
         sys.exit()
     if advrt is None:
-        print "advrt is missing"
+        print ("advrt is missing")
         sys.exit()
 
     if rt_units == 'kg kg-1':
@@ -48,16 +49,16 @@ def advrt2advqt(rt=None,advrt=None,rt_units='kg kg-1'):
     elif rt_units == 'g kg-1':
         return advrt/((1.+rt/1000.)*(1.+rt/1000.))
     else:
-        print 'units unknown for rt:', rt_units
+        print ("units unknown for rt:", rt_units)
         sys.exit()
 
 def advqt2advrt(qt=None,advqt=None,qt_units='kg kg-1'):
 
     if qt is None:
-        print "qt is missing"
+        print ("qt is missing")
         sys.exit()
     if advqt is None:
-        print "advqt is missing"
+        print ("advqt is missing")
         sys.exit()
 
     if qt_units == 'kg kg-1':
@@ -65,28 +66,28 @@ def advqt2advrt(qt=None,advqt=None,qt_units='kg kg-1'):
     elif qt_units == 'g kg-1':
         return advqt/((1.-qt/1000.)*(1.-qt/1000.))
     else:
-        print 'units unknown for qt:', qt_units
+        print ("units unknown for qt:", qt_units)
         sys.exit()
 
-def theta2t(p=None,theta=None,p0=cc.p0,kappa=cc.kappa):
+def theta2t(p=None,theta=None,p0=CC.p0,kappa=CC.kappa):
 
     if theta is None:
-        print "theta is missing"
+        print ("theta is missing")
         sys.exit()
     if p is None:
-        print "p is missing"
+        print ("p is missing")
         sys.exit()
 
     temp = theta*(p/p0)**kappa
     return temp
 
-def t2theta(p=None,temp=None,p0=cc.p0,kappa=cc.kappa):
+def t2theta(p=None,temp=None,p0=CC.p0,kappa=CC.kappa):
 
     if temp is None:
-        print "t is missing"
+        print ("t is missing")
         sys.exit()
     if p is None:
-        print "p is missing"
+        print ("p is missing")
         sys.exit()
 
     theta = temp*(p0/p)**kappa
@@ -95,16 +96,16 @@ def t2theta(p=None,temp=None,p0=cc.p0,kappa=cc.kappa):
 
 def z2p(thetal=None, theta=None, ta=None,
         z=None, ps=None, qv=None,
-        g=cc.g, Rd=cc.Rd, Rv=cc.Rv, p0=cc.p0, kappa=cc.kappa):
+        g=CC.g, Rd=CC.Rd, Rv=CC.Rv, p0=CC.p0, kappa=CC.kappa):
 
     if (thetal is None) and (theta is None) and (ta is None):
-        print "thetal, theta and ta are missing. At least one of them should be given"
+        print ("thetal, theta and ta are missing. At least one of them should be given")
         sys.exit()
     if z is None:
-        print "z is missing"
+        print ("z is missing")
         sys.exit()
     if ps is None:
-        print "ps is missing"
+        print ("ps is missing")
         sys.exit()
 
     if thetal is not None and theta is None and ta is None:
@@ -125,9 +126,9 @@ def z2p(thetal=None, theta=None, ta=None,
 
         for ilev in range(1,nlev):
             dz = z[ilev]- z[ilev-1]    
-#            print 'dz =', dz
+#            print ("dz =", dz)
             integ = integ + (g/(R[ilev-1]*theta[ilev-1])+g/(R[ilev]*theta[ilev]))/2*dz
-#            print 'integ =', integ
+#            print ("integ =", integ)
             tmp = ps**kappa-p0**kappa*kappa*integ
             p[ilev] = math.exp(math.log(tmp)/kappa)
     else: # Use ta instead
@@ -145,9 +146,9 @@ def z2p(thetal=None, theta=None, ta=None,
 
         for ilev in range(1,nlev):
             dz = z[ilev]- z[ilev-1]    
-#            print 'dz =', dz
+#            print ("dz =", dz)
             integ = integ + (g/(R[ilev-1]*ta[ilev-1])+g/(R[ilev]*ta[ilev]))/2*dz
-#            print 'integ =', integ
+#            print ("integ =", integ)
             tmp = math.log(ps)-integ
             p[ilev] = math.exp(tmp)
 
@@ -156,13 +157,13 @@ def z2p(thetal=None, theta=None, ta=None,
 
 def p2z(thetal=None, theta=None, ta=None,
         p=None, qv=None,
-        g=cc.g, Rd=cc.Rd, Rv=cc.Rv, p0=cc.p0, kappa=cc.kappa):
+        g=CC.g, Rd=CC.Rd, Rv=CC.Rv, p0=CC.p0, kappa=CC.kappa):
 
     if (thetal is None) and (theta is None) and (ta is None):
-        print "thetal, theta and ta are missing. At least one of them should be given"
+        print ("thetal, theta and ta are missing. At least one of them should be given")
         sys.exit()
     if p is None:
-        print "p is missing"
+        print ("p is missing")
         sys.exit()
 
     if theta is not None and ta is None:

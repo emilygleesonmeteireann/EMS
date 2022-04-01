@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on 27 November 2019
@@ -17,14 +17,14 @@ import netCDF4 as nc
 
 import numpy as np
 
-from Axis import Axis
-from Variable import Variable, read as readvar, interpol
+from .Axis import Axis
+from .Variable import Variable, read as readvar, interpol
 
-from variables_attributes import attributes as var_attributes
-from attributes import known_attributes, required_attributes
+from .variables_attributes import attributes as var_attributes
+from .attributes import known_attributes, required_attributes
 
-import thermo
-import constants as CC
+from .thermo import *
+from . import constants as CC
 
 lwarnings = False
 
@@ -145,7 +145,7 @@ class Case:
     def set_attribute(self,attid,attvalue):
 
         if not(attid in known_attributes):
-            print "Warning, attribute {0} is not known. It might not be written in the case output file.".format(attid)
+            print ("Warning, attribute {0} is not known. It might not be written in the case output file.", format(attid))
 
         if not(attid in self.attlist):
             self.attlist.append(attid)
@@ -208,8 +208,8 @@ class Case:
 
         if varid in self.var_init_list + self.var_forcing_list:
             if lwarnings:
-                print 'WARNING: Variable {0} is already defined'.format(varid)
-                print 'WARNING: It will be overwritten'
+                print ("WARNING: Variable {0} is already defined", format(varid))
+                print ("WARNING: It will be overwritten")
             #sys.exit()
         else:
             if varid in ['ps','zh','pa','ua','va','ta','theta','thetal','qv','qt','rv','rt','rl','ri','ql','qi','tke','ts']:
@@ -223,7 +223,7 @@ class Case:
         if time is None:
             timeAxis = None
             nt = None
-            print 'ERROR'
+            print ("ERROR")
             raise ValueError
         elif isinstance(time,Axis):
             timeAxis = time
@@ -257,8 +257,8 @@ class Case:
                 levunits = 'Pa'
                 lev_name = 'air_pressure_for_{0}'.format(varid)
             else:
-                print 'ERROR: levtype unexpected:', levtype
-                print 'ERROR: levtype should be defined and in altitude, pressure:'
+                print ("ERROR: levtype unexpected:", levtype)
+                print ("ERROR: levtype should be defined and in altitude, pressure:")
                 sys.exit()
 
             if levid is None:
@@ -294,7 +294,7 @@ class Case:
         if units is None:
             varunits = var_attributes[varid]['units']
         else:
-            print 'Warning: the framework expects SI units'
+            print ("Warning: the framework expects SI units")
             varunits = units
 
         try:
@@ -309,7 +309,7 @@ class Case:
         ######################
         # Create variable
         if levAxis is None and timeAxis is None:
-            print 'ERROR: level and time axes are None. Unexpected'
+            print ("ERROR: level and time axes are None. Unexpected")
             sys.exit()
         else:
             if timeAxis is None:
@@ -349,8 +349,8 @@ class Case:
             tmp = np.reshape(vardata,(1,))
         else:
             # Check if lev optional argument is given
-            if not(kwargs.has_key('lev')):
-                print 'ERROR: level axis should be given for variable', varid
+            if 'lev' not in kwargs:
+                print ("ERROR: level axis should be given for variable", varid)
                 sys.exit()
 
             if isinstance(kwargs['lev'],Axis):
@@ -531,11 +531,11 @@ class Case:
         """
 
         if u is None or v is None:
-            print 'ERROR: you must provide both zonal and meridional wind'
+            print ("ERROR: you must provide both zonal and meridional wind")
             sys.exit()
 
         if not(kwargs.has_key('lev')) and ulev is None and vlev is None:
-            print 'ERROR: you must provide a vertical axis either with lev or with both ulev/vlev'
+            print ("ERROR: you must provide a vertical axis either with lev or with both ulev/vlev")
             sys.exit()
 
         if ulev is not None:
@@ -587,9 +587,10 @@ class Case:
         """
 
         # Prepare time axis
-        if kwargs.has_key('time'):
+        print ("kwargs = ", kwargs)
+        if 'time' in kwargs:
             lconstant = False
-            nt, = np.array(kwargs['time']).shape
+            nt, = np.array(kwargs.get('time')).shape
         else: # forcing is constant in time
             lconstant = True
             kwargs['time'] = [self.tstart,self.tend]
@@ -606,7 +607,7 @@ class Case:
         else:
             # Check if lev optional argument is given
             if not(kwargs.has_key('lev')):
-                print 'ERROR: level axis should be given for variable', varid
+                print ("ERROR: level axis should be given for variable", varid)
                 sys.exit()
 
             nlev, = np.array(kwargs['lev']).shape # In case lev is given as a list
@@ -766,11 +767,11 @@ class Case:
         """
 
         if ug is None or vg is None:
-            print 'ERROR: you must provide both zonal and meridional geostrophic wind'
+            print ("ERROR: you must provide both zonal and meridional geostrophic wind")
             sys.exit()
 
         if not(kwargs.has_key('lev')) and uglev is None and vglev is None:
-            print 'ERROR: you must provide a vertical axis either with lev or with both uglev/vglev'
+            print ("ERROR: you must provide a vertical axis either with lev or with both uglev/vglev")
             sys.exit()
 
         self.set_attribute('forc_geo',1)
@@ -801,11 +802,11 @@ class Case:
         """
 
         if w is None and omega is None:
-            print 'ERROR: you must provide either w or omega'
+            print ("ERROR: you must provide either w or omega")
             sys.exit()
 
         if w is not None and omega is not None:
-            print 'ERROR: you cannot provide both w and omega at the same time'
+            print ("ERROR: you cannot provide both w and omega at the same time")
             sys.exit()
 
         if w is not None:
@@ -981,13 +982,13 @@ class Case:
         """
 
         if timescale is None:
-            print 'ERROR: you must provide a nudging timescale for variable {0}'.format(varid)
+            print ("ERROR: you must provide a nudging timescale for variable {0}", format(varid))
             sys.exit()
 
         self.set_attribute('nudging_{0}'.format(varid),float(timescale))
 
         if z_nudging is None and p_nudging is None:
-            print 'WARNING: {0} will be nudged over the whole atmosphere'
+            print ("WARNING: {0} will be nudged over the whole atmosphere")
             self.set_attribute('za_nudging_{0}'.format(varid),0)
 
         if z_nudging is not None:
@@ -1020,11 +1021,11 @@ class Case:
         """
 
         if unudg is None or vnudg is None:
-            print 'ERROR: you must provide both zonal and meridional nudging wind'
+            print ("ERROR: you must provide both zonal and meridional nudging wind")
             sys.exit()
 
         if not(kwargs.has_key('lev')) and ulev is None and vlev is None:
-            print 'ERROR: you must provide a vertical axis either with lev or with both ulev/vglev'
+            print ("ERROR: you must provide a vertical axis either with lev or with both ulev/vglev")
             sys.exit()
 
         if ulev is not None:
@@ -1272,7 +1273,7 @@ class Case:
         """
 
         if sens is None or lat is None:
-            print 'ERROR: you must provide both sensible and latent heat fluxes'
+            print ("ERROR: you must provide both sensible and latent heat fluxes")
             sys.exit()
 
         self.set_attribute('surface_forcing_temp','surface_flux')
@@ -1281,21 +1282,21 @@ class Case:
         if forc_wind == 'z0':
             self.set_attribute("surface_forcing_wind","z0")
             if z0 is None:
-                print 'ERROR: z0 must be provided'
+                print ("ERROR: z0 must be provided")
                 sys.exit()
             self.add_forcing_variable('z0',z0)
             #self.set_z0(z0)
         elif forc_wind == 'ustar':
             self.set_attribute("surface_forcing_wind","ustar")
             if ustar is None:
-                print 'ERROR: ustar must be provided'
+                print ("ERROR: ustar must be provided")
                 sys.exit()
             self.add_forcing_variable('ustar',ustar,time=time_ustar)
         elif forc_wind is None:
-            print 'ERROR: you must specify the surface wind forcing (z0 or ustar)'
+            print ("ERROR: you must specify the surface wind forcing (z0 or ustar)")
         else:
-            print 'ERROR: surface wind forcing unexpected:', forc_wind
-            print 'ERROR: it should be either z0 or ustar'
+            print ("ERROR: surface wind forcing unexpected:", forc_wind)
+            print ("ERROR: it should be either z0 or ustar")
             sys.exit()
 
         if time_sens is not None:
@@ -1337,10 +1338,10 @@ class Case:
 
         for att in known_attributes:
             if att in self.attlist:
-                print '{0}: {1}'.format(att,self.attributes[att])
+                print ("{0}: {1}", format(att,self.attributes[att]))
      
-        print "######################"
-        print "# Variable information"
+        print ("######################")
+        print ("# Variable information")
         for var in self.var_init_list + self.var_forcing_list:
             self.variables[var].info()
 
@@ -1360,7 +1361,7 @@ class Case:
         # Writing first only time axes
         for var in var_attributes.keys():
             if var in self.var_init_list + self.var_forcing_list:
-                if verbose: print 'writing time axis for', var
+                if verbose: print ("writing time axis for", var)
                 self.variables[var].write(g,
                         write_time_axes=True, write_level_axes=False,
                         write_data=False, write_vertical=False)
@@ -1368,7 +1369,7 @@ class Case:
         # Writing first only level axes
         for var in var_attributes.keys():
             if var in self.var_init_list + self.var_forcing_list:
-                if verbose: print 'writing level axis for', var
+                if verbose: print ("writing level axis for", var)
                 self.variables[var].write(g,
                         write_time_axes=False, write_level_axes=True,
                         write_data=False, write_vertical=False)
@@ -1376,7 +1377,7 @@ class Case:
         # Writing then only vertical variables
         for var in var_attributes.keys():
             if var in self.var_init_list + self.var_forcing_list:
-                if verbose: print 'writing vertical variable for', var
+                if verbose: print ("writing vertical variable for", var)
                 self.variables[var].write(g, 
                         write_time_axes=False, write_level_axes=False,
                         write_data=False, write_vertical=True)
@@ -1384,7 +1385,7 @@ class Case:
         # Finally write data
         for var in var_attributes.keys():
             if var in self.var_init_list + self.var_forcing_list:
-                if verbose: print 'writing data for', var
+                if verbose: print ("writing data for", var)
                 self.variables[var].write(g,
                         write_time_axes=False, write_level_axes=False,
                         write_data=True, write_vertical=False)
@@ -1413,7 +1414,7 @@ class Case:
         for var in f.variables:
             if (var not in f.dimensions and var[0:6] != 'bounds' and var[0:3] not in ['zh_','pa_'])\
                     or var in ['zh_forc','pa_forc']:
-                if verbose: print 'Reading', var
+                if verbose: print ("Reading", var)
                 tmp = readvar(var,f)
                 if tmp.level is None:
                     self.add_variable(var, tmp.data,
@@ -1481,7 +1482,7 @@ class Case:
 #            thetal = self.variables['thetal'].data
 #            height = thermo.p2z(theta=thetal,p=pressure)
 #        else:
-#            print 'ERROR: ta, theta or thetal should be provided'
+#            print ("ERROR: ta, theta or thetal should be provided'
 #            raise ValueError
 #
 #        return Variable('zh', data=height, 
@@ -1520,7 +1521,7 @@ class Case:
 #            temp = self.variables['ta'].data[0,:,0,0]
 #            pressure = thermo.z2p(temp=temp,z=z,ps=ps,qv=humidity)
 #        else:
-#            print 'ERROR: theta, thetal or temp should be defined'
+#            print ("ERROR: theta, thetal or temp should be defined'
 #            sys.exit()
 #
 #        return Variable('pa', data=pressure, 
@@ -1534,16 +1535,16 @@ class Case:
 
         if 'ta' in self.var_init_list:
             if pressure is None:
-                print 'ERROR: pressure should be None to theta from ta'
+                print ("ERROR: pressure should be None to theta from ta")
                 raise ValueError
             else:
-                 print 'compute potential temperature from pressure and temperature'
+                 print ("compute potential temperature from pressure and temperature")
                  theta = thermo.t2theta(p=pressure.data[0,:], temp=self.variables['ta'].data[0,:])
         elif 'thetal' in self.var_init_list:
-            print 'assume theta=thetal'
+            print ("assume theta=thetal")
             theta = self.variables['thetal'].data[0,:]
         else:
-            print 'ERROR: At least ta or thetal should be given to compute theta'
+            print ("ERROR: At least ta or thetal should be given to compute theta")
             raise ValueError
 
         return theta
@@ -1552,16 +1553,16 @@ class Case:
 
         if 'ta' in self.var_init_list:
             if pressure is None:
-                print 'ERROR: pressure should be None to compute thetal from ta'
+                print ("ERROR: pressure should be None to compute thetal from ta")
                 raise ValueError
             else:
-                print 'compute potential temperature from pressure and temperature, assuming thetal=theta'
+                print ("compute potential temperature from pressure and temperature, assuming thetal=theta")
                 thetal = thermo.t2theta(p=pressure.data[0,:], temp=self.variables['ta'].data[0,:])
         elif 'theta' in self.var_init_list:
-            print 'assume thetal=theta'
+            print ("assume thetal=theta")
             thetal = self.variables['theta'].data[0,:]
         else:
-            print 'ERROR: At least ta or theta should be given to compute thetal'
+            print ("ERROR: At least ta or theta should be given to compute thetal")
             raise ValueError
 
         return thetal
@@ -1569,17 +1570,17 @@ class Case:
     def compute_temp(self,pressure=None):
 
         if pressure is None:
-            print 'ERROR: pressure should be None to compute ta from theta or thetahl'
+            print ("ERROR: pressure should be None to compute ta from theta or thetahl")
             raise ValueError
 
         if 'theta' in self.var_init_list:
-            print 'compute temperature from pressure and potential temperature'
+            print ("compute temperature from pressure and potential temperature")
             temp = thermo.theta2t(p=pressure.data[0,:], theta=self.variables['theta'].data[0,:])
         elif 'thetal' in self.var_init_list:
-            print 'compute temperature from pressure and liquid potential temperature (No liquid water considered)'
+            print ("compute temperature from pressure and liquid potential temperature (No liquid water considered)")
             temp = thermo.theta2t(p=pressure.data[0,:], theta=self.variables['thetal'].data[0,:])
         else:
-            print 'ERROR: At least theta or thetal should be given'
+            print ("ERROR: At least theta or thetal should be given")
             raise ValueError
 
         return temp
@@ -1587,16 +1588,16 @@ class Case:
     def compute_qv(self):
 
         if 'qt' in self.var_init_list:
-            print 'assume qv=qt'
+            print ("assume qv=qt")
             qv = self.variables['qt'].data[0,:]
         elif 'rv' in self.var_init_list:
-            print 'compute qv from rv'
+            print ("compute qv from rv")
             qv = thermo.rt2qt(self.variables['rv'].data[0,:])
         elif 'rt' in self.var_init_list:
-            print 'compute qt from rt and assume qv=qt'
+            print ("compute qt from rt and assume qv=qt")
             qv = thermo.rt2qt(self.variables['rt'].data[0,:])
         else:
-            print 'ERROR: Either qt, rv or rt should be defined to compute qv'
+            print ("ERROR: Either qt, rv or rt should be defined to compute qv")
             raise ValueError
 
         return qv
@@ -1604,16 +1605,16 @@ class Case:
     def compute_qt(self):
 
         if 'qv' in self.var_init_list:
-            print 'assume qt=qv'
+            print ("assume qt=qv")
             qt = self.variables['qv'].data[0,:]
         elif 'rv' in self.var_init_list:
-            print 'compute qv from rv and assume qt=qv'
+            print ("compute qv from rv and assume qt=qv")
             qt = thermo.rt2qt(self.variables['rv'].data[0,:])
         elif 'rt' in self.var_init_list:
-            print 'compute qt from rt'
+            print ("compute qt from rt")
             qt = thermo.rt2qt(self.variables['rt'].data[0,:])
         else:
-            print 'ERROR: Either qv, rv or rt should be defined to compute qt'
+            print ("ERROR: Either qv, rv or rt should be defined to compute qt")
             raise ValueError
 
         return qt
@@ -1621,16 +1622,16 @@ class Case:
     def compute_rv(self):
 
         if 'qv' in self.var_init_list:
-            print 'compute rv from qv'
+            print ("compute rv from qv")
             rv = thermo.qt2rt(self.variables['qv'].data[0,:])
         elif 'qt' in self.var_init_list:
-            print 'compute rt from qt and assume rv=rt'
+            print ("compute rt from qt and assume rv=rt")
             rv = thermo.qt2rt(self.variables['qt'].data[0,:])
         elif 'rt' in self.var_init_list:
-            print 'assume rv=rt'
+            print ("assume rv=rt")
             rv = selv.variables['rt'].data[0,:]
         else:
-            print 'ERROR: Either qv, qt or rt should be defined to compute rv'
+            print ("ERROR: Either qv, qt or rt should be defined to compute rv")
             raise ValueError
 
         return rv
@@ -1638,16 +1639,16 @@ class Case:
     def compute_rt(self):
 
         if 'qv' in self.var_init_list:
-            print 'compute rt from qt, assuming qt=av'
+            print ("compute rt from qt, assuming qt=av")
             rt = thermo.qt2rt(self.variables['qv'].data[0,:])
         elif 'qt' in self.var_init_list:
-            print 'compute rt from qt'
+            print ("compute rt from qt")
             rt = thermo.qt2rt(self.variables['qt'].data[0,:])
         elif 'rv' in self.var_init_list:
-            print 'assume rt=rv'
+            print ("assume rt=rv")
             rt = selv.variables['rv'].data[0,:]
         else:
-            print 'ERROR: Either qv, qt or rv should be defined to compute rt'
+            print ("ERROR: Either qv, qt or rv should be defined to compute rt")
             raise ValueError
 
         return rt
@@ -1657,15 +1658,15 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'tntheta_adv' in self.var_forcing_list:
-            print 'compute tnta_adv from tntheta_adv'
+            print ("compute tnta_adv from tntheta_adv")
             thadv = self.variables['tntheta_adv'].data
             tadv = thermo.theta2t(p=pressure,theta=thadv)
         elif 'tnthetal_adv' in self.var_forcing_list:
-            print 'assume tnthetal_adv=tntheta_adv and compute tnta_adv from tntheta_adv'
+            print ("assume tnthetal_adv=tntheta_adv and compute tnta_adv from tntheta_adv")
             thladv = self.variables['tnthetal_adv'].data
             tadv = thermo.theta2t(p=pressure,theta=thladv)
         else:
-            print 'ERROR: To compute tnta_adv, tntheta_adv or tnthetal_adv must be known'
+            print ("ERROR: To compute tnta_adv, tntheta_adv or tnthetal_adv must be known")
             raise ValueError
 
         return tadv
@@ -1675,14 +1676,14 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'tnta_adv' in self.var_forcing_list:
-            print 'compute tntheta_adv from tnta_adv'
+            print ("compute tntheta_adv from tnta_adv")
             tadv = self.variables['tnta_adv'].data
             thadv = thermo.t2theta(p=pressure,temp=tadv)
         elif 'tnthetal_adv' in self.var_forcing_list:
-            print 'assume tntheta_adv=tnthetal_adv'
+            print ("assume tntheta_adv=tnthetal_adv")
             thadv = self.variables['tnthetal_adv'].data
         else:
-            print 'ERROR: To compute tntheta_adv, tnta_adv or tnthetal_adv must be known'
+            print ("ERROR: To compute tntheta_adv, tnta_adv or tnthetal_adv must be known")
             raise ValueError
 
         return thadv
@@ -1692,14 +1693,14 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'tnta_adv' in self.var_forcing_list:
-            print 'compute tnthetal_adv from tnta_adv assuming tnthetal_adv=tntheta_adv'
+            print ("compute tnthetal_adv from tnta_adv assuming tnthetal_adv=tntheta_adv")
             tadv = self.variables['tnta_adv'].data
             thladv = thermo.t2theta(p=pressure,temp=tadv)
         elif 'tntheta_adv' in self.var_forcing_list:
-            print 'assume tnthetal_adv=tntheta_adv'
+            print ("assume tnthetal_adv=tntheta_adv")
             thladv = self.variables['tntheta_adv'].data
         else:
-            print 'ERROR: To compute tnthetal_adv, tnta_adv or tntheta_adv must be known'
+            print ("ERROR: To compute tnthetal_adv, tnta_adv or tntheta_adv must be known")
             raise ValueError
 
         return thladv
@@ -1709,15 +1710,15 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'tntheta_rad' in self.var_forcing_list:
-            print 'compute tnta_rad from tntheta_rad'
+            print ("compute tnta_rad from tntheta_rad")
             thrad = self.variables['tntheta_rad'].data
             trad = thermo.theta2t(p=pressure,theta=thrad)
         elif 'tnthetal_rad' in self.var_forcing_list:
-            print 'assume tnthetal_rad=tntheta_rad and compute tnta_rad from tntheta_rad'
+            print ("assume tnthetal_rad=tntheta_rad and compute tnta_rad from tntheta_rad")
             thlrad = self.variables['tnthetal_rad'].data
             trad = thermo.theta2t(p=pressure,theta=thlrad)
         else:
-            print 'ERROR: To compute tnta_rad, tntheta_rad or tnthetal_rad must be known'
+            print ("ERROR: To compute tnta_rad, tntheta_rad or tnthetal_rad must be known")
             raise ValueError
 
         return trad
@@ -1727,14 +1728,14 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'tnta_rad' in self.var_forcing_list:
-            print 'compute tntheta_rad from tnta_rad'
+            print ("compute tntheta_rad from tnta_rad")
             trad = self.variables['tnta_rad'].data
             thrad = thermo.t2theta(p=pressure,temp=trad)
         elif 'tnthetal_rad' in self.var_forcing_list:
-            print 'assume tntheta_rad=tnthetal_rad'
+            print ("assume tntheta_rad=tnthetal_rad")
             thrad = self.variables['tnthetal_rad'].data
         else:
-            print 'ERROR: To compute tntheta_rad, tnta_rad or tnthetal_rad must be known'
+            print ("ERROR: To compute tntheta_rad, tnta_rad or tnthetal_rad must be known")
             raise ValueError
 
         return thrad
@@ -1744,14 +1745,14 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'tnta_rad' in self.var_forcing_list:
-            print 'compute tnthetal_rad from tnta_rad assuming tnthetal_rad=tntheta_rad'
+            print ("compute tnthetal_rad from tnta_rad assuming tnthetal_rad=tntheta_rad")
             trad = self.variables['tnta_rad'].data
             thlrad = thermo.t2theta(p=pressure,temp=trad)
         elif 'tntheta_rad' in self.var_forcing_list:
-            print 'assume tnthetal_rad=tntheta_rad'
+            print ("assume tnthetal_rad=tntheta_rad")
             thlrad = self.variables['tntheta_rad'].data
         else:
-            print 'ERROR: To compute tnthetal_rad, tnta_rad or tntheta_rad must be known'
+            print ("ERROR: To compute tnthetal_rad, tnta_rad or tntheta_rad must be known")
             raise ValueError
 
         return thlrad
@@ -1759,20 +1760,20 @@ class Case:
     def compute_tnqv_adv(self):
 
         if 'tnqt_adv' in self.var_forcing_list:
-            print 'assume tnqv_adv=tnqt_adv'
+            print ("assume tnqv_adv=tnqt_adv")
             qvadv = self.variables['tnqt_adv'].data
         elif 'tnrv_adv' in self.var_forcing_list:
-            print 'compute tnqv_adv from tnrv_adv using initial rv profile'
+            print ("compute tnqv_adv from tnrv_adv using initial rv profile")
             rvadv = self.variables['tnrv_adv'].data
             rv = self.variables['rv'].data
             qvadv =  thermo.advrt2advqt(rt=rv,advrt=rvadv)
         elif 'tnrt_adv' in self.var_forcing_list:
-            print 'compute tnqv_adv from tnrv_adv assuming tnrv_adv=tnrt_adv and using initial rt profile'
+            print ("compute tnqv_adv from tnrv_adv assuming tnrv_adv=tnrt_adv and using initial rt profile")
             rtadv = self.variables['tnrt_adv'].data
             rt = self.variables['rt'].data
             qvadv =  thermo.advrt2advqt(rt=rt,advrt=rtadv)
         else:
-            print 'ERROR: To compute tnqv_adv, tnqt_adv, tnrv_adv or tnrt_adv must be known'
+            print ("ERROR: To compute tnqv_adv, tnqt_adv, tnrv_adv or tnrt_adv must be known")
             raise ValueError
 
         return qvadv
@@ -1780,20 +1781,20 @@ class Case:
     def compute_tnqt_adv(self):
 
         if 'tnqv_adv' in self.var_forcing_list:
-            print 'assume tnqt_adv=tnqv_adv'
+            print ("assume tnqt_adv=tnqv_adv")
             qtadv = self.variables['tnqv_adv'].data
         elif 'tnrv_adv' in self.var_forcing_list:
-            print 'compute tnqt_adv from tnrt_adv assuming tnrt_adv=tnrv_adv using initial rv profile'
+            print ("compute tnqt_adv from tnrt_adv assuming tnrt_adv=tnrv_adv using initial rv profile")
             rtadv = self.variables['tnrv_adv'].data
             rt = self.variables['rv'].data
             qtadv =  thermo.advrt2advqt(rt=rt,advrt=rtadv)
         elif 'tnrt_adv' in self.var_forcing_list:
-            print 'compute tnqt_adv from tnrt_adv using initial rt profile'
+            print ("compute tnqt_adv from tnrt_adv using initial rt profile")
             rtadv = self.variables['tnrt_adv'].data
             rt = self.variables['rt'].data
             qtadv =  thermo.advrt2advqt(rt=rt,advrt=rtadv)
         else:
-            print 'ERROR: To compute tnqt_adv, tnqv_adv, tnrv_adv or tnrt_adv must be known'
+            print ("ERROR: To compute tnqt_adv, tnqv_adv, tnrv_adv or tnrt_adv must be known")
             raise ValueError
 
         return qtadv
@@ -1801,20 +1802,20 @@ class Case:
     def compute_tnrv_adv(self):
 
         if 'tnrt_adv' in self.var_forcing_list:
-            print 'assume tnrv_adv=tnrt_adv'
+            print ("assume tnrv_adv=tnrt_adv")
             rvadv = self.variables['tnrt_adv'].data
         elif 'tnqv_adv' in self.var_forcing_list:
-            print 'compute tnrv_adv from tnqv_adv using initial qv profile'
+            print ("compute tnrv_adv from tnqv_adv using initial qv profile")
             qvadv = self.variables['tnqv_adv'].data
             qv = self.variables['qv'].data
             rvadv =  thermo.advqt2advrt(qt=qv,advqt=qvadv)
         elif 'tnqt_adv' in self.var_forcing_list:
-            print 'compute tnrv_adv from tnqv_adv assuming tnqv_adv=tnqt_adv and using initial qt profile'
+            print ("compute tnrv_adv from tnqv_adv assuming tnqv_adv=tnqt_adv and using initial qt profile")
             qvadv = self.variables['tnqt_adv'].data
             qv = self.variables['qt'].data
             rvadv =  thermo.advqt2advrt(qt=qv,advqt=qvadv)
         else:
-            print 'ERROR: To compute tnrv_adv, tnqv_adv, tnqt_adv or tnrt_adv must be known'
+            print ("ERROR: To compute tnrv_adv, tnqv_adv, tnqt_adv or tnrt_adv must be known")
             raise ValueError
 
         return rvadv
@@ -1822,20 +1823,20 @@ class Case:
     def compute_tnrt_adv(self):
 
         if 'tnrv_adv' in self.var_forcing_list:
-            print 'assume tnrt_adv=tnrv_adv'
+            print ("assume tnrt_adv=tnrv_adv")
             rtadv = self.variables['tnrv_adv'].data
         elif 'tnqv_adv' in self.var_forcing_list:
-            print 'compute tnrt_adv from tnqt_adv assuming tnqt_adv=tnqv_adv and using initial qv profile'
+            print ("compute tnrt_adv from tnqt_adv assuming tnqt_adv=tnqv_adv and using initial qv profile")
             qtadv = self.variables['tnqv_adv'].data
             qt = self.variables['qv'].data
             rtadv =  thermo.advqt2advrt(qt=qt,advqt=qtadv)
         elif 'tnqt_adv' in self.var_forcing_list:
-            print 'compute tnrt_adv from tnqt_adv using initial qt profile'
+            print ("compute tnrt_adv from tnqt_adv using initial qt profile")
             qtadv = self.variables['tnqt_adv'].data
             qt = self.variables['qt'].data
             rtadv =  thermo.advqt2advrt(qt=qt,advqt=qtadv)
         else:
-            print 'ERROR: To compute tnrt_adv, tnqv_adv, tnqt_adv or tnrv_adv must be known'
+            print ("ERROR: To compute tnrt_adv, tnqv_adv, tnqt_adv or tnrv_adv must be known")
             raise ValueError
 
         return rtadv
@@ -1845,15 +1846,15 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'theta_nud' in self.var_forcing_list:
-            print 'compute ta_nud from theta_nud'
+            print ("compute ta_nud from theta_nud")
             thnud = self.variables['theta_nud'].data
             tnud = thermo.theta2t(p=pressure,theta=thnud)
         elif 'thetal_nud' in self.var_forcing_list:
-            print 'compute ta_nud from theta_nud assuming theta_nud=thetal_nud'
+            print ("compute ta_nud from theta_nud assuming theta_nud=thetal_nud")
             thnud = self.variables['thetal_nud'].data
             tnud = thermo.theta2t(p=pressure,theta=thnud)
         else:
-            print 'ERROR: To compute ta_nud, theta_nud or thetal_nud must be known'
+            print ("ERROR: To compute ta_nud, theta_nud or thetal_nud must be known")
             raise ValueError
 
         return tnud
@@ -1863,15 +1864,15 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'theta_nud' in self.var_forcing_list:
-            print 'compute ta_nud from theta_nud'
+            print ("compute ta_nud from theta_nud")
             thnud = self.variables['theta_nud'].data
             tnud = thermo.theta2t(p=pressure,theta=thnud)
         elif 'thetal_nud' in self.var_forcing_list:
-            print 'compute ta_nud from theta_nud assuming theta_nud=thetal_nud'
+            print ("compute ta_nud from theta_nud assuming theta_nud=thetal_nud")
             thnud = self.variables['thetal_nud'].data
             tnud = thermo.theta2t(p=pressure,theta=thnud)
         else:
-            print 'ERROR: To compute ta_nud, theta_nud or thetal_nud must be known'
+            print ("ERROR: To compute ta_nud, theta_nud or thetal_nud must be known")
             raise ValueError
 
         return tnud
@@ -1881,14 +1882,14 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'ta_nud' in self.var_forcing_list:
-            print 'compute theta_nud from ta_nud'
+            print ("compute theta_nud from ta_nud")
             tnud = self.variables['ta_nud'].data
             thnud = thermo.t2theta(p=pressure,temp=tnud)
         elif 'thetal_nud' in self.var_forcing_list:
-            print 'assume theta_nud=thetal_nud'
+            print ("assume theta_nud=thetal_nud")
             thnud = self.variables['thetal_nud'].data
         else:
-            print 'ERROR: To compute theta_nud, ta_nud or thetal_nud must be known'
+            print ("ERROR: To compute theta_nud, ta_nud or thetal_nud must be known")
             raise ValueError
 
         return thnud
@@ -1898,14 +1899,14 @@ class Case:
         pressure = self.variables['pa_forc'].data
 
         if 'ta_nud' in self.var_forcing_list:
-            print 'compute thetal_nud from ta_nud assuming thetal_nud=theta_nud'
+            print ("compute thetal_nud from ta_nud assuming thetal_nud=theta_nud")
             tnud = self.variables['ta_nud'].data
             thlnud = thermo.t2theta(p=pressure,temp=tnud)
         elif 'theta_nud' in self.var_forcing_list:
-            print 'assume thetal_nud=theta_nud'
+            print ("assume thetal_nud=theta_nud")
             thlnud = self.variables['theta_nud'].data
         else:
-            print 'ERROR: To compute thetal_nud, ta_nud or theta_nud must be known'
+            print ("ERROR: To compute thetal_nud, ta_nud or theta_nud must be known")
             raise ValueError
 
         return thlnud
@@ -1913,18 +1914,18 @@ class Case:
     def compute_qv_nud(self):
 
         if 'qt_nud' in self.var_forcing_list:
-            print 'assume qv_nud=qt_nud'
+            print ("assume qv_nud=qt_nud")
             qvnud = self.variables['qt_nud'].data
         elif 'rv_nud' in self.var_forcing_list:
-            print 'compute qv_nud from rv_nud'
+            print ("compute qv_nud from rv_nud")
             rvnud = self.variables['rv_nud'].data
             qvnud =  thermo.rt2qt(rvnud)
         elif 'rt_nud' in self.var_forcing_list:
-            print 'compute qv_nud from rv_nud assuming rv_nud=rt_nud'
+            print ("compute qv_nud from rv_nud assuming rv_nud=rt_nud")
             rvnud = self.variables['rt_nud'].data
             qvnud =  thermo.rt2qt(rvnud)
         else:
-            print 'ERROR: To compute qv_nud, qt_nud, rv_nud or rt_nud must be known'
+            print ("ERROR: To compute qv_nud, qt_nud, rv_nud or rt_nud must be known")
             raise ValueError
 
         return qvnud
@@ -1932,18 +1933,18 @@ class Case:
     def compute_qt_nud(self):
 
         if 'qv_nud' in self.var_forcing_list:
-            print 'assume qt_nud=qv_nud'
+            print ("assume qt_nud=qv_nud")
             qtnud = self.variables['qv_nud'].data
         elif 'rv_nud' in self.var_forcing_list:
-            print 'compute qt_nud from rt_nud assuming rt_nud=rv_nud'
+            print ("compute qt_nud from rt_nud assuming rt_nud=rv_nud")
             rtnud = self.variables['rv_nud'].data
             qtnud =  thermo.rt2qt(rtnud)
         elif 'rt_nud' in self.var_forcing_list:
-            print 'compute qt_nud from rt_nud'
+            print ("compute qt_nud from rt_nud")
             rtnud = self.variables['rt_nud'].data
             qtnud =  thermo.rt2qt(rtnud)
         else:
-            print 'ERROR: To compute qt_nud, qv_nud, rv_nud or rt_nud must be known'
+            print ("ERROR: To compute qt_nud, qv_nud, rv_nud or rt_nud must be known")
             raise ValueError
 
         return qtnud
@@ -1951,18 +1952,18 @@ class Case:
     def compute_rv_nud(self):
 
         if 'qv_nud' in self.var_forcing_list:
-            print 'compute rv_nud from qv_nud'
+            print ("compute rv_nud from qv_nud")
             qvnud = self.variables['qv_nud'].data
             rvnud =  thermo.qt2rt(qvnud)
         elif 'qt_nud' in self.var_forcing_list:
-            print 'compute rv_nud from qv_nud assuming qv_nud=qt_nud'
+            print ("compute rv_nud from qv_nud assuming qv_nud=qt_nud")
             qvnud = self.variables['qt_nud'].data
             rvnud =  thermo.qt2rt(qvnud)
         elif 'rt_nud' in self.var_forcing_list:
-            print 'assume rv_nud=rt_nud'
+            print ("assume rv_nud=rt_nud")
             rvnud = self.variables['rt_nud'].data
         else:
-            print 'ERROR: To compute rv_nud, qv_nud, qt_nud or rt_nud must be known'
+            print ("ERROR: To compute rv_nud, qv_nud, qt_nud or rt_nud must be known")
             raise ValueError
 
         return rvnud
@@ -1970,18 +1971,18 @@ class Case:
     def compute_rt_nud(self):
 
         if 'qv_nud' in self.var_forcing_list:
-            print 'compute rt_nud from qt_nud assuming qt_nud=qv_nud'
+            print ("compute rt_nud from qt_nud assuming qt_nud=qv_nud")
             qtnud = self.variables['qv_nud'].data
             rtnud =  thermo.qt2rt(qtnud)
         elif 'qt_nud' in self.var_forcing_list:
-            print 'compute rt_nud from qt_nud'
+            print ("compute rt_nud from qt_nud")
             qtnud = self.variables['qt_nud'].data
             rtnud =  thermo.qt2rt(qtnud)
         elif 'rv_nud' in self.var_forcing_list:
-            print 'assume rt_nud=rv_nud'
+            print ("assume rt_nud=rv_nud")
             rtnud = self.variables['rv_nud'].data
         else:
-            print 'ERROR: To compute rt_nud, qv_nud, qt_nud or rv_nud must be known'
+            print ("ERROR: To compute rt_nud, qv_nud, qt_nud or rv_nud must be known")
             raise ValueError
 
         return rtnud
@@ -2007,7 +2008,7 @@ class Case:
         dataout = {}
 
         if time is None:
-            print 'WARNING: No time interpolation'
+            print ("WARNING: No time interpolation")
             for var in self.var_init_list + self.var_forcing_list:
                 VV = self.variables[var]
                 dataout[var] = Variable(var, data=VV.data, name=VV.name, units=VV.units,
@@ -2030,7 +2031,7 @@ class Case:
 
         if lev is None:
 
-            print 'WARNING: No vertical interpolation'
+            print ("WARNING: No vertical interpolation")
 
             for var in self.var_init_list:
                 VV = dataout[var]
@@ -2041,7 +2042,7 @@ class Case:
                     elif VV.level.units == 'Pa':
                         levout = Axis('lev',VV.level.data,name='air_pressure',units='Pa')
                     else:
-                        print 'ERROR: Level type undefined for level units:', VV.level.units
+                        print ("ERROR: Level type undefined for level units:', VV.level.unit")
                         raise ValueError
 
                     height = None
@@ -2073,7 +2074,7 @@ class Case:
                     elif VV.level.units == 'Pa':
                         levout = Axis('lev',VV.level.data,name='air_pressure',units='Pa')
                     else:
-                        print 'ERROR: Level type undefined for level units:', VV.level.units
+                        print ("ERROR: Level type undefined for level units:', VV.level.unit")
                         raise ValueError
 
                     height = None
@@ -2128,12 +2129,12 @@ class Case:
             elif levtype == 'pressure':
 
                 levout = Axis('lev', lev, name='air_pressure', units='Pa')
-                print 'ERROR: Pressure level type is not coded yet for interpolation'
+                print ("ERROR: Pressure level type is not coded yet for interpolation")
                 raise ValueError
 
             else:
 
-                print 'ERROR: levtype unexpected:', levtype
+                print ("ERROR: levtype unexpected:', levtyp")
                 raise ValueError
 
         for var in self.var_init_list:
@@ -2161,7 +2162,7 @@ class Case:
             if v in self.var_init_list:
                 var = v
         if var is None:
-            print 'ERROR: ta, theta or thetal must be given'
+            print ("ERROR: ta, theta or thetal must be given")
             raise ValueError
 
         VV = self.variables[var]
@@ -2169,7 +2170,7 @@ class Case:
 
         if VV.height is None and VV.pressure is None:
 
-            print 'ERROR: height and pressure are None for {0}'.format(var)
+            print ("ERROR: height and pressure are None for {0}", format(var))
             raise ValueError
 
         elif VV.pressure is None:
@@ -2253,7 +2254,7 @@ class Case:
 
         else:
             
-            if lwarnings: print 'WARNING: Nothing to do. height and pressure already defined. Just pass'
+            if lwarnings: print ("WARNING: Nothing to do. height and pressure already defined. Just pass")
 
         ##################################
         # Initial state variables
@@ -2286,13 +2287,13 @@ class Case:
             elif var in ['rl','ri','ql','qi','tke']:
                 self.add_init_variable(var, self.variables['ua'].data*0, lev=levAxis, height=height, pressure=pressure)
             else:
-                print 'ERROR: Case unexpected: variable {0} have to be defined'.format(var)
+                print ("ERROR: Case unexpected: variable {0} have to be defined'.format(var")
                 sys.exit()
 
     def add_missing_forcing_variables(self):
 
         if not(self.var_forcing_list):
-            print 'WARNING: no forcing variable. Nothing to do'
+            print ("WARNING: no forcing variable. Nothing to do")
             # TODO: add ps_forc
             return
 
@@ -2325,12 +2326,12 @@ class Case:
         #---- Height/pressure
         if height is None and pressure is None:
 
-            print 'ERROR: height and pressure are None. Unexpected in add_missing_forcing_variables'
+            print ("ERROR: height and pressure are None. Unexpected in add_missing_forcing_variables")
             raise ValueError
 
         elif pressure is None:
 
-            print 'assume pa_forc is constant over time'
+            print ("assume pa_forc is constant over time")
             pressure = np.tile(self.variables['pa'].data[0,:],(nt,1))
             pressure = Variable('pa_forc', data=pressure, name='air_pressure_forcing', units='Pa',
                         height=height, 
@@ -2351,7 +2352,7 @@ class Case:
 
         elif VV.height is None:
 
-            print 'assume zh_forc is constant over time'
+            print ("assume zh_forc is constant over time")
             height = np.tile(self.variables['zh'].data[0,:],(nt,1))
             height = Variable('zh_forc', data=height, name='height_forcing', units='m',
                         pressure=pressure, 
@@ -2372,7 +2373,7 @@ class Case:
 
         else:
             
-            if lwarnings: print 'WARNING: Nothing to do. height and pressure already defined. Just pass' 
+            if lwarnings: print ("WARNING: Nothing to do. height and pressure already defined. Just pass'")
 
         ##################################
         # Forcing variables
@@ -2507,7 +2508,7 @@ class Case:
                     self.set_attribute('zh_nudging_{0}'.format(var),zlev)
                     self.set_attribute('pa_nudging_{0}'.format(var),plev)
             else:
-                print 'ERROR: nudging case not yet coded'
+                print ("ERROR: nudging case not yet coded")
                 raise ValueError
 
             # temperature nudging is active. All temperature variables are added, if needed.
@@ -2560,7 +2561,7 @@ class Case:
                     self.set_attribute('zh_nudging_{0}'.format(var),zlev)
                     self.set_attribute('pa_nudging_{0}'.format(var),plev)
             else:
-                print 'ERROR: nudging case not yet coded'
+                print ("ERROR: nudging case not yet coded")
                 raise ValueError
 
             # humidity nudging is active. All temperature variables are added, if needed.
@@ -2597,8 +2598,7 @@ class Case:
         # Interpolation
         ###########################################
 
-        print '#'*40
-        print '#### Interpolate available variables'
+        print ("#### Interpolate available variables")
 
         caseSCM = self.interpolate(time=time, lev=lev, levtype=levtype,
                 usetemp=usetemp, usetheta=usetheta, usethetal=usethetal)
@@ -2607,8 +2607,7 @@ class Case:
         # Add missing variables for initial state
         ###########################################
 
-        print '#'*40
-        print '#### Add missing initial variables'
+        print ("#### Add missing initial variables")
 
         caseSCM.add_missing_init_variables()
 
@@ -2616,8 +2615,7 @@ class Case:
         # Add missing forcing variables
         ###########################################
 
-        print '#'*40
-        print '#### Add missing forcing variables'
+        print ("#### Add missing forcing variables")
 
         caseSCM.add_missing_forcing_variables()
 
@@ -2625,7 +2623,6 @@ class Case:
         # Final
         ###########################################
 
-        print '#'*40
 
         return caseSCM
 
@@ -2636,7 +2633,7 @@ class Case:
         ltime = True
 
         if lev is None:
-            print 'No vertical interpolation'
+            print ("No vertical interpolation")
             lvert = False
             lev = self.variables['temp'].level.data
             if self.variables['temp'].level.units == 'm':
@@ -2646,7 +2643,7 @@ class Case:
                 levtype = 'pressure'
                 levout = Axis('lev',self.variables['temp'].level.data,name='pressure',units='Pa')
             else:
-                print 'ERROR: Level type undefined for level units:', self.variables['temp'].level.units
+                print ("ERROR: Level type undefined for level units:", self.variables['temp'].level.units)
                 sys.exit()
 
         else:
@@ -2654,14 +2651,14 @@ class Case:
                 levout = Axis('lev',lev,name='Altitude',units='m')
             elif levtype == 'pressure':
                 levout = Axis('lev',lev,name='pressure',units='Pa')
-                print 'ERROR: Pressure level type is not coded yet for interpolation'
+                print ("ERROR: Pressure level type is not coded yet for interpolation")
                 sys.exit()
             else:
-                print 'ERROR: levtype unexpected:', levtype
+                print ("ERROR: levtype unexpected:", levtype)
                 sys.exit()
 
         if time is None:
-            print 'No time interpolation'
+            print ("No time interpolation")
             ltime = False
             try:
                 time = self.variables['pressure_forc'].time.data
@@ -2669,7 +2666,7 @@ class Case:
                 try:
                     time = self.variables['height_forc'].time.data
                 except:
-                    print 'ERROR: cannot define time axis'
+                    print ("ERROR: cannot define time axis")
                     raise
 
         # time should be given in same units as original
@@ -2697,9 +2694,9 @@ class Case:
                     else:
                         dataout[var] = interpol(self.variables[var],levout=levout,timeout=timeout)
                 elif lvert or ltime:
-                    print 'ERROR: case unexpected for interpolation'
-                    print 'ERROR: lvert:', lvert
-                    print 'ERROR: ltime:', ltime
+                    print ("ERROR: case unexpected for interpolation")
+                    print ("ERROR: lvert:", lvert)
+                    print ("ERROR: ltime:", ltime)
                     sys.exit()
                 else:
                     dataout[var] = self.variables[var]
@@ -2729,14 +2726,14 @@ class Case:
                         theta = dataout['theta'].data[0,:,0,0]
                         if 'qv' in dataout.keys():
                             qv = dataout['qv'].data[0,:,0,0]
-                            print 'compute pressure from altitude, potential temperature, qv and surface pressure'
+                            print ("compute pressure from altitude, potential temperature, qv and surface pressure")
                             pressure = thermo.z2p(theta=theta,z=z,ps=ps,qv=qv)
                         elif 'qt' in dataout.keys():
                             qt = dataout['qt'].data[0,:,0,0]
-                            print 'compute pressure from altitude, potential temperature, qt and surface pressure'
+                            print ("compute pressure from altitude, potential temperature, qt and surface pressure")
                             pressure = thermo.z2p(theta=theta,z=z,ps=ps,qv=qt)
                         else:
-                            print 'compute pressure from altitude, potential temperature and surface pressure'
+                            print ("compute pressure from altitude, potential temperature and surface pressure")
                             pressure = thermo.z2p(theta=theta,z=z,ps=ps)
 
                     elif 'thetal' in dataout.keys():
@@ -2744,14 +2741,14 @@ class Case:
                         thetal = dataout['thetal'].data[0,:,0,0]
                         if 'qv' in dataout.keys():
                             qv = dataout['qv'].data[0,:,0,0]
-                            print 'compute pressure from altitude, liquid potential temperature, qv and surface pressure'
+                            print ("compute pressure from altitude, liquid potential temperature, qv and surface pressure")
                             pressure = thermo.z2p(theta=thetal,z=z,ps=ps,qv=qv)
                         elif 'qt' in dataout.keys():
                             qt = dataout['qt'].data[0,:,0,0]
-                            print 'compute pressure from altitude, liquid potential temperature, qt and surface pressure'
+                            print ("compute pressure from altitude, liquid potential temperature, qt and surface pressure")
                             pressure = thermo.z2p(theta=thetal,z=z,ps=ps,qv=qt)
                         else:
-                            print 'compute pressure from altitude, potential temperature and surface pressure'
+                            print ("compute pressure from altitude, potential temperature and surface pressure")
                             pressure = thermo.z2p(theta=thetal,z=z,ps=ps)
 
                     elif 'temp' in dataout.keys():
@@ -2759,18 +2756,18 @@ class Case:
                         temp = dataout['temp'].data[0,:,0,0]
                         if 'qv' in dataout.keys():
                             qv = dataout['qv'].data[0,:,0,0]
-                            print 'compute pressure from altitude, temperature, qv and surface pressure'
+                            print ("compute pressure from altitude, temperature, qv and surface pressure")
                             pressure = thermo.z2p(temp=temp,z=z,ps=ps,qv=qv)
                         elif 'qt' in dataout.keys():
                             qt = dataout['qt'].data[0,:,0,0]
-                            print 'compute pressure from altitude, temperature, qt and surface pressure'
+                            print ("compute pressure from altitude, temperature, qt and surface pressure")
                             pressure = thermo.z2p(temp=temp,z=z,ps=ps,qv=qt)
                         else:
-                            print 'compute pressure from altitude, temperature and surface pressure'
+                            print ("compute pressure from altitude, temperature and surface pressure")
                             pressure = thermo.z2p(temp=temp,z=z,ps=ps)
 
                     else:
-                        print 'ERROR: theta, thetal or temp should be defined'
+                        print ("ERROR: theta, thetal or temp should be defined")
                         sys.exit()
                     pressure = np.reshape(pressure,(1,nlev,1,1))
                     caseSCM.add_init_variable(var,pressure,lev=lev,levtype=levtype,levid='lev')
@@ -2778,114 +2775,114 @@ class Case:
                 pressure = caseSCM.variables['pressure'].data[0,:,0,0]
                 if 'temp' in dataout.keys():
                     temp = dataout['temp'].data[0,:,0,0]
-                    print 'compute potential temperature from pressure and temperature'
+                    print ("compute potential temperature from pressure and temperature")
                     theta = thermo.t2theta(p=pressure,temp=temp)
                 elif 'thetal' in dataout.keys():
-                    print 'assume theta=thetal'
+                    print ("assume theta=thetal")
                     theta = dataout['thetal'].data[0,:,0,0]
                 else:
-                    print 'ERROR: At least temp or thetal should be given'
+                    print ("ERROR: At least temp or thetal should be given")
                     sys.exit()                    
                 caseSCM.add_init_variable(var,theta,lev=lev,levtype=levtype,levid='lev')
             elif var == 'thetal':
                 pressure = caseSCM.variables['pressure'].data[0,:,0,0]
                 if 'temp' in dataout.keys():
                     temp = dataout['temp'].data[0,:,0,0]
-                    print 'compute potential temperature from pressure and temperature and assume thetal=theta'
+                    print ("compute potential temperature from pressure and temperature and assume thetal=theta")
                     thetal = thermo.t2theta(p=pressure,temp=temp)
                 elif 'theta' in dataout.keys():
-                    print 'assume thetal=theta'
+                    print ("assume thetal=theta")
                     thetal = dataout['theta'].data[0,:,0,0]
                 else:
-                    print 'ERROR: At least temp or thetal should be given'
+                    print ("ERROR: At least temp or thetal should be given")
                     sys.exit()                    
                 caseSCM.add_init_variable(var,thetal,lev=lev,levtype=levtype,levid='lev')
             elif var == 'temp':
                 pressure = caseSCM.variables['pressure'].data[0,:,0,0]
                 if 'theta' in dataout.keys():
                     theta = dataout['theta'].data[0,:,0,0]
-                    print 'compute temperature from pressure and potential temperature'
+                    print ("compute temperature from pressure and potential temperature")
                     temp = thermo.theta2t(p=pressure,theta=theta)
                 elif 'thetal' in dataout.keys():
                     thetal = dataout['thetal'].data[0,:,0,0]
-                    print 'compute temperature from pressure and liquid potential temperature (No liquid water considered)'
+                    print ("compute temperature from pressure and liquid potential temperature (No liquid water considered)")
                     temp = thermo.theta2t(p=pressure,theta=thetal)
                 else:
-                    print 'ERROR: At least theta or thetal should be given'
+                    print ("ERROR: At least theta or thetal should be given")
                     sys.exit()
                 caseSCM.add_init_variable(var,temp,lev=lev,levtype=levtype,levid='lev')
             elif var == 'qv':
                 if 'qt' in dataout.keys():
-                    print 'assume qv=qt'
+                    print ("assume qv=qt")
                     caseSCM.add_init_variable(var,dataout['qt'].data,lev=lev,levtype=levtype,levid='lev')
                 elif 'rv'in dataout.keys():
                     rv = dataout['rv'].data[0,:,0,0]
-                    print 'compute qv from rv'
+                    print ("compute qv from rv")
                     qv = thermo.rt2qt(rv)
                     caseSCM.add_init_variable(var,qv,lev=lev,levtype=levtype,levid='lev')
                 elif 'rt' in dataout.keys():
                     rt = dataout['rt'].data[0,:,0,0]
-                    print 'compute qt from rt and assume qv=qt'
+                    print ("compute qt from rt and assume qv=qt")
                     qv = thermo.rt2qt(rt)
                     caseSCM.add_init_variable(var,qv,lev=lev,levtype=levtype,levid='lev')
                 else:
-                    print 'ERROR: Either qt, rv or rt should be defined'
+                    print ("ERROR: Either qt, rv or rt should be defined")
                     sys.exit()
             elif var == 'qt':
                 if 'qv' in dataout.keys():
-                    print 'assume qt=qv'
+                    print ("assume qt=qv")
                     caseSCM.add_init_variable(var,dataout['qv'].data,lev=lev,levtype=levtype,levid='lev')
                 elif 'rv'in dataout.keys():
                     rv = dataout['rv'].data[0,:,0,0]
-                    print 'compute qv from rv and assume qt=qv'
+                    print ("compute qv from rv and assume qt=qv")
                     qt = thermo.rt2qt(rv)
                     caseSCM.add_init_variable(var,qt,lev=lev,levtype=levtype,levid='lev')
                 elif 'rt' in dataout.keys():
                     rt = dataout['rt'].data[0,:,0,0]
-                    print 'compute qt from rt'
+                    print ("compute qt from rt")
                     qt = thermo.rt2qt(rt)
                     caseSCM.add_init_variable(var,qt,lev=lev,levtype=levtype,levid='lev')
                 else:
-                    print 'ERROR: Either qv, rv or rt should be defined'
+                    print ("ERROR: Either qv, rv or rt should be defined")
                     sys.exit()
             elif var == 'rv':
                 if 'qv' in dataout.keys():
                     qv = dataout['qv'].data[0,:,0,0]
-                    print 'compute rv from qv'
+                    print ("compute rv from qv")
                     rv = thermo.qt2rt(qv)
                     caseSCM.add_init_variable(var,rv,lev=lev,levtype=levtype,levid='lev')                    
                 elif 'qt'in dataout.keys():
                     qt = dataout['qt'].data[0,:,0,0]
-                    print 'compute rt from qt and assume rv=rt'
+                    print ("compute rt from qt and assume rv=rt")
                     rt = thermo.qt2rt(qt)
                     caseSCM.add_init_variable(var,rt,lev=lev,levtype=levtype,levid='lev')                     
                 elif 'rt' in dataout.keys():
-                    print 'assume rv=rt'
+                    print ("assume rv=rt")
                     caseSCM.add_init_variable(var,dataout['rt'].data,lev=lev,levtype=levtype,levid='lev')
                 else:
-                    print 'ERROR: Either qv, qt or rt should be defined'
+                    print ("ERROR: Either qv, qt or rt should be defined")
                     sys.exit()
             elif var == 'rt':
                 if 'qv' in dataout.keys():
                     qv = dataout['qv'].data[0,:,0,0]
-                    print 'compute rv from qv and assume rt=rv'
+                    print ("compute rv from qv and assume rt=rv")
                     rv = thermo.qt2rt(qv)
                     caseSCM.add_init_variable(var,rv,lev=lev,levtype=levtype,levid='lev')                    
                 elif 'qt'in dataout.keys():
                     qt = dataout['qt'].data[0,:,0,0]
-                    print 'compute rt from qt'
+                    print ("compute rt from qt")
                     rt = thermo.qt2rt(qt)
                     caseSCM.add_init_variable(var,rt,lev=lev,levtype=levtype,levid='lev')                     
                 elif 'rv' in dataout.keys():
-                    print 'assume rt=rv'
+                    print ("assume rt=rv")
                     caseSCM.add_init_variable(var,dataout['rv'].data,lev=lev,levtype=levtype,levid='lev')
                 else:
-                    print 'ERROR: Either qv, qt or rv should be defined'
+                    print ("ERROR: Either qv, qt or rv should be defined")
                     sys.exit()                
             elif var in ['rl','ri','ql','qi','tke']:
                 caseSCM.add_init_variable(var,dataout['u'].data*0,lev=lev,levtype=levtype,levid='lev')
             else:
-                print 'ERROR: Case unexpected: variable {0} have to be defined'.format(var)
+                print ("ERROR: Case unexpected: variable {0} have to be defined", format(var))
                 sys.exit()
 
         ###########################
@@ -2905,7 +2902,7 @@ class Case:
         if var in self.varlist:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
         else:
-            print 'assume height_forc is constant over time'
+            print ("assume height_forc is constant over time")
             tmp = np.zeros((ntout,nlev,1,1),dtype=np.float32)
             for it in range(0,ntout):
                 tmp[it,:,0,0] = lev[:]
@@ -2916,7 +2913,7 @@ class Case:
         if var in self.varlist:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
         else:
-            print 'assume pressure_forc is constant over time'
+            print ("assume pressure_forc is constant over time")
             tmp = np.zeros((ntout,nlev,1,1),dtype=np.float32)
             for it in range(0,ntout):
                 tmp[it,:,0,0] = caseSCM.variables['pressure'].data[0,:,0,0]
@@ -2927,13 +2924,13 @@ class Case:
         att = 'adv_temp'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'compute theta_adv from temp_adv'
+            print ("compute theta_adv from temp_adv")
             pressure = caseSCM.variables['pressure_forc'].data
             tadv = caseSCM.variables['temp_adv'].data
             thadv = thermo.t2theta(p=pressure,temp=tadv)
             caseSCM.add_variable('theta_adv',thadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_theta',1)
-            print 'assume thetal_adv=theta_adv'
+            print ("assume thetal_adv=theta_adv")
             caseSCM.add_variable('thetal_adv',thadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_thetal',1)
 
@@ -2941,13 +2938,13 @@ class Case:
         att = 'adv_theta'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'compute temp_adv from theta_adv'
+            print ("compute temp_adv from theta_adv")
             pressure = caseSCM.variables['pressure_forc'].data
             thadv = caseSCM.variables['theta_adv'].data
             tadv = thermo.theta2t(p=pressure,theta=thadv)
             caseSCM.add_variable('temp_adv',tadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_temp',1)
-            print 'assumee thetal_adv=theta_adv'
+            print ("assumee thetal_adv=theta_adv")
             caseSCM.add_variable('thetal_adv',thadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_thetal',1)
 
@@ -2956,13 +2953,13 @@ class Case:
         att = 'rad_temp'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'compute theta_rad from temp_rad'
+            print ("compute theta_rad from temp_rad")
             pressure = caseSCM.variables['pressure_forc'].data
             trad = caseSCM.variables['temp_rad'].data
             thrad = thermo.t2theta(p=pressure,temp=trad)
             caseSCM.add_variable('theta_rad',thrad,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('rad_theta',1)
-            print 'assume thetal_rad=theta_rad'
+            print ("assume thetal_rad=theta_rad")
             caseSCM.add_variable('thetal_rad',thrad,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('rad_thetal',1)
 
@@ -2974,13 +2971,13 @@ class Case:
         att = 'rad_theta'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'compute temp_rad from theta_rad'
+            print ("compute temp_rad from theta_rad")
             pressure = caseSCM.variables['pressure_forc'].data
             thrad = caseSCM.variables['theta_rad'].data
             trad = thermo.theta2t(p=pressure,theta=thrad)
             caseSCM.add_variable('temp_rad',trad,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('rad_temp',1)
-            print 'assume thetal_rad=theta_rad'
+            print ("assume thetal_rad=theta_rad")
             caseSCM.add_variable('thetal_rad',thrad,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('rad_thetal',1)
 
@@ -2992,13 +2989,13 @@ class Case:
         att = 'rad_thetal'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'compute temp_rad from thetal_rad assuming thetal_rad=theta_rad'
+            print ("compute temp_rad from thetal_rad assuming thetal_rad=theta_rad")
             pressure = caseSCM.variables['pressure_forc'].data
             thlrad = caseSCM.variables['thetal_rad'].data
             trad = thermo.theta2t(p=pressure,theta=thlrad)
             caseSCM.add_variable('temp_rad',trad,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('rad_temp',1)
-            print 'assume theta_rad=thetal_rad'
+            print ("assume theta_rad=thetal_rad")
             caseSCM.add_variable('theta_rad',thlrad,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('rad_theta',1)
 
@@ -3011,16 +3008,16 @@ class Case:
         att = 'adv_qv'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'assume qt_adv=qv_adv'
+            print ("assume qt_adv=qv_adv")
             caseSCM.add_variable('qt_adv',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_qt',1)
-            print 'Compute rv_adv from qv_adv'
+            print ("Compute rv_adv from qv_adv")
             qvadv = caseSCM.variables['qv_adv'].data
             qv = caseSCM.variables['qv'].data
             rvadv =  thermo.advqt2advrt(qt=qv,advqt=qvadv)
             caseSCM.add_variable('rv_adv',rvadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_rv',1)
-            print 'assume rt_adv=rv_adv'
+            print ("assume rt_adv=rv_adv")
             caseSCM.add_variable('rt_adv',rvadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_rt',1)
 
@@ -3028,16 +3025,16 @@ class Case:
         att = 'adv_qt'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'assume qv_adv=qt_adv'
+            print ("assume qv_adv=qt_adv")
             caseSCM.add_variable('qv_adv',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_qv',1)
-            print 'Compute rv_adv from qv_adv'
+            print ("Compute rv_adv from qv_adv")
             qtadv = caseSCM.variables['qt_adv'].data
             qt = caseSCM.variables['qt'].data
             rtadv =  thermo.advqt2advrt(qt=qt,advqt=qtadv)
             caseSCM.add_variable('rt_adv',rtadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_rt',1)
-            print 'assume rv_adv=rt_adv'
+            print ("assume rv_adv=rt_adv")
             caseSCM.add_variable('rv_adv',rtadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_rv',1)
 
@@ -3045,16 +3042,16 @@ class Case:
         att = 'adv_rv'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'assume rt_adv=rv_adv'
+            print ("assume rt_adv=rv_adv")
             caseSCM.add_variable('rt_adv',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_rt',1)
-            print 'Compute qv_adv from rv_adv'
+            print ("Compute qv_adv from rv_adv")
             rvadv = caseSCM.variables['rv_adv'].data
             rv = caseSCM.variables['rv'].data
             qvadv =  thermo.advrt2advqt(rt=rv,advrt=rvadv)
             caseSCM.add_variable('qv_adv',qvadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_qv',1)
-            print 'assume qt_adv=qv_adv'
+            print ("assume qt_adv=qv_adv")
             caseSCM.add_variable('qt_adv',qvadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_qt',1)
 
@@ -3062,16 +3059,16 @@ class Case:
         att = 'adv_rt'
         if att in self.attlist and self.attributes[att] == 1:
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'assume rv_adv=rt_adv'
+            print ("assume rv_adv=rt_adv")
             caseSCM.add_variable('rv_adv',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_rv',1)
-            print 'Compute qt_adv from rt_adv'
+            print ("Compute qt_adv from rt_adv")
             rtadv = caseSCM.variables['rt_adv'].data
             rt = caseSCM.variables['rt'].data
             qtadv =  thermo.advrt2advqt(rt=rt,advrt=rtadv)
             caseSCM.add_variable('qt_adv',qtadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_qt',1)
-            print 'assume qv_adv=qt_adv'
+            print ("assume qv_adv=qt_adv")
             caseSCM.add_variable('qv_adv',qtadv,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('adv_qv',1)
 
@@ -3134,19 +3131,18 @@ class Case:
         att = 'nudging_temp'
         if att in self.attlist and self.attributes[att] > 0:
             if not(usetemp) and (ltheta or lthetal):
-                print 'Warning: Several nudging variable for temperature are given, which might yield to inconsistencies'
+                print ("Warning: Several nudging variable for temperature are given, which might yield to inconsistencies")
                 #sys.exit()
             else:
                 ltemp=True
-                print '-'*10
-                print 'temp_nudging is given'
+                print ("temp_nudging is given")
                 caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-                print 'compute theta_nudging from temp_nudging'
+                print ("compute theta_nudging from temp_nudging")
                 pressure = caseSCM.variables['pressure_forc'].data
                 tnudg = caseSCM.variables['temp_nudging'].data
                 thnudg = thermo.t2theta(p=pressure,temp=tnudg)
                 caseSCM.add_variable('theta_nudging',thnudg,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-                print 'assume thetal_nudging=theta_nudging'
+                print ("assume thetal_nudging=theta_nudging")
                 caseSCM.add_variable('thetal_nudging',thnudg,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
                 caseSCM.set_attribute('nudging_theta',self.attributes[att])
                 caseSCM.set_attribute('nudging_thetal',self.attributes[att])
@@ -3173,14 +3169,13 @@ class Case:
         att = 'nudging_theta'
         if att in self.attlist and self.attributes[att] > 0:
             if not(usetheta) and (ltemp or lthetal):
-                print 'Warning: Several nudging variable for temperature are given, which might yield to inconsistencies'
+                print ("Warning: Several nudging variable for temperature are given, which might yield to inconsistencies")
                 #sys.exit()
             else:
                 ltheta=True   
-                print '-'*10
-                print 'theta_nudging is given'
+                print ("theta_nudging is given")
                 caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-                print 'compute temp_nudging from theta_nudging'
+                print ("compute temp_nudging from theta_nudging")
                 pressure = caseSCM.variables['pressure_forc'].data
                 thnudg = caseSCM.variables['theta_nudging'].data
                 tnudg = thermo.theta2t(p=pressure,theta=thnudg)
@@ -3209,17 +3204,17 @@ class Case:
         att = 'nudging_thetal'
         if att in self.attlist and self.attributes[att] > 0:
             if not(usethetal) and (ltemp or ltheta):
-                print 'Warning: Several nudging variable for temperature are given, which might yield to inconsistencies'
+                print ("Warning: Several nudging variable for temperature are given, which might yield to inconsistencies")
                 #sys.exit()
             else:
                 lthetal=True   
-                print '-'*10
-                print 'thetal_nudging is given'
+                print ("-'*1")
+                print ("thetal_nudging is given")
                 caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-                print 'assume theta_nudging=thetal_nudging'
+                print ("assume theta_nudging=thetal_nudging")
                 caseSCM.add_variable('theta_nudging',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
                 caseSCM.set_attribute('nudging_theta',self.attributes[att])
-                print 'compute temp_nudging from thetal_nudging assuming no liquid water'
+                print ("compute temp_nudging from thetal_nudging assuming no liquid water")
                 pressure = caseSCM.variables['pressure_forc'].data
                 thlnudg = caseSCM.variables['thetal_nudging'].data
                 tnudg = thermo.theta2t(p=pressure,theta=thlnudg)
@@ -3254,14 +3249,14 @@ class Case:
         att = 'nudging_qv'
         if att in self.attlist and self.attributes[att] > 0:
             lflag = True
-            print '-'*10
-            print 'qv_nudging is given'            
+            print ("-'*1")
+            print ("qv_nudging is given")
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'assume qt_nudging=qv_nudging'
+            print ("assume qt_nudging=qv_nudging")
             caseSCM.add_variable('qt_nudging',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('nudging_qt',self.attributes[att])
             qvnudg = caseSCM.variables['qv_nudging'].data
-            print 'compute rv_nudging from qv_nudging and assume rt_nudging=rv_nudging'
+            print ("compute rv_nudging from qv_nudging and assume rt_nudging=rv_nudging")
             rvnudg = thermo.qt2rt(qvnudg)
             caseSCM.add_variable('rv_nudging',rvnudg,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('nudging_rv',self.attributes[att])
@@ -3296,18 +3291,18 @@ class Case:
         att = 'nudging_qt'
         if att in self.attlist and self.attributes[att] > 0:
             if lflag:
-                print 'Error: Several nudging variable for humidity are given, which might yield to inconsistencies'
+                print ("Error: Several nudging variable for humidity are given, which might yield to inconsistencies")
                 sys.exit()
             else:
                 lflag=True
-            print '-'*10
-            print 'qt_nudging is given'            
+            print ("-'*1")
+            print ("qt_nudging is given")
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'assume qv_nudging=qt_nudging'
+            print ("assume qv_nudging=qt_nudging")
             caseSCM.add_variable('qv_nudging',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('nudging_qv',self.attributes[att])
             qtnudg = caseSCM.variables['qt_nudging'].data
-            print 'compute rt_nudging from qt_nudging and assume rv_nudging=rt_nudging'
+            print ("compute rt_nudging from qt_nudging and assume rv_nudging=rt_nudging")
             rtnudg = thermo.qt2rt(qtnudg)
             caseSCM.add_variable('rt_nudging',rtnudg,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('nudging_rt',self.attributes[att])
@@ -3342,18 +3337,18 @@ class Case:
         att = 'nudging_rv'
         if att in self.attlist and self.attributes[att] > 0:
             if lflag:
-                print 'Error: Several nudging variable for humidity are given, which might yield to inconsistencies'
+                print ("Error: Several nudging variable for humidity are given, which might yield to inconsistencies")
                 sys.exit()
             else:
                 lflag=True            
-            print '-'*10
-            print 'rv_nudging is given'
+            print ("-'*1")
+            print ("rv_nudging is given")
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'assume rt_nudging=rv_nudging'
+            print ("assume rt_nudging=rv_nudging")
             caseSCM.add_variable('rt_nudging',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('nudging_rt',self.attributes[att])
             rvnudg = caseSCM.variables['rv_nudging'].data
-            print 'compute qv_nudging from rv_nudging and assume qt_nudging=qv_nudging'
+            print ("compute qv_nudging from rv_nudging and assume qt_nudging=qv_nudging")
             qvnudg = thermo.rt2qt(rvnudg)
             caseSCM.add_variable('qv_nudging',qvnudg,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('nudging_qv',self.attributes[att])
@@ -3388,18 +3383,18 @@ class Case:
         att = 'nudging_rt'
         if att in self.attlist and self.attributes[att] > 0:
             if lflag:
-                print 'Error: Several nudging variable for humidity are given, which might yield to inconsistencies'
+                print ("Error: Several nudging variable for humidity are given, which might yield to inconsistencies")
                 sys.exit()
             else:
                 lflag=True            
-            print '-'*10
-            print 'rt_nudging is given'
+            print ("-'*1")
+            print ("rt_nudging is given")
             caseSCM.add_variable(var,dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
-            print 'assume rv_nudging=rt_nudging'
+            print ("assume rv_nudging=rt_nudging")
             caseSCM.add_variable('rv_nudging',dataout[var].data,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('nudging_rv',self.attributes[att])
             rtnudg = caseSCM.variables['rt_nudging'].data
-            print 'compute qt_nudging from rt_nudging and assume qv_nudging=qt_nudging'
+            print ("compute qt_nudging from rt_nudging and assume qv_nudging=qt_nudging")
             qtnudg = thermo.rt2qt(rtnudg)
             caseSCM.add_variable('qt_nudging',qtnudg,lev=lev,levtype=levtype,levid='lev',time=time,timeid='time')
             caseSCM.set_attribute('nudging_qt',self.attributes[att])
