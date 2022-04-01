@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 # Copyright (c) Météo France (2014-)
 # This software is governed by the CeCILL-C license under French law.
@@ -79,7 +79,8 @@ if __name__ == '__main__':
     EXPID = config_file.split('/')[-1][7:-3]
 
     try:
-        os.remove('./config.py')
+        if os.path.exists('./config.py'):
+            os.remove('./config.py')
     except OSError:
         pass
     except:
@@ -259,6 +260,8 @@ if __name__ == '__main__':
         else:
             logger.info('Run data for {0}/{1} already installed, loverwrite={2}, lupdate={3}'.format(case, subcase, loverwrite, lupdate_RUN))
 
-    os.remove("./config.py")
-    #os.remove("./config.pyc")
+    if os.path.exists('./config.py'):
+        os.remove("./config.py")
+    if os.path.exists('./config.pyc'):
+        os.remove("./config.pyc")
  

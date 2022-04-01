@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Provide a set of useful thermodynamical functions
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 import math
 import numpy as np
 
-from . import constants as cc
+from . import constants as CC
 
 #############################
 def rt2qt(rt, units='kg kg-1'):

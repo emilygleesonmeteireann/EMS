@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on 27 November 2019
@@ -629,7 +629,7 @@ def read(name,filein):
         pressure_units = filein[var_vert_id].units
 
     #else:
-    #    print 'ERROR: vertical variable for {0} is unexpected'.format(name)
+    #    print ("ERROR: vertical variable for {0} is unexpected'.format(name)
     #    raise ValueError
 
     try:
