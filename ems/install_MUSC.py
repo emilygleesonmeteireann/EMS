@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 # Copyright (c) Météo France (2014-)
 # This software is governed by the CeCILL-C license under French law.
@@ -319,7 +319,7 @@ def install_run(model,case,subcase,filecase,repout,config,configOut,loverwrite=F
             g.write('. ./run.sh > run_${CONFIG}.log 2>&1\n')
             g.write('mv run_${CONFIG}.log listings/\n')
             g.write('echo log file: logs/run_${CONFIG}.log\n')
-            g.write('date')
+            g.write('date\n')
 
         os.system('chmod u+x exec.sh')
 
