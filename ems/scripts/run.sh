@@ -211,11 +211,11 @@ then
   echo ''
   set -x
 
-  files2install='convertLFA2nc.py lfa2nc.py convert2p.py convert2z.py'
+  files2install='ems_convertLFA2nc.py ems_lfa2nc.py ems_convert2p.py ems_convert2z.py'
 
   for file in $files2install
   do
-    ln -s $dirpost/$file
+    ln -s $EMS_DIR/bin/$file
   done
   ln -s $dirpost/$configpost config.py
   ln -s $dirpost/$variablesDict variables.py
@@ -237,7 +237,7 @@ then
 
   # seems necessary in some circumstances (deep shells?)
   unset PYTHONHOME
-  ./convertLFA2nc.py
+  ./ems_convertLFA2nc.py
 
 fi
 
