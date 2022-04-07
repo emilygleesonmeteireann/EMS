@@ -79,15 +79,15 @@ if __name__ == '__main__':
     EXPID = config_file.split('/')[-1][7:-3]
 
     try:
-        if os.path.exists('./config.py'):
-            os.remove('./config.py')
+        if os.path.exists('./musc_config.py'):
+            os.remove('./musc_config.py')
     except OSError:
         pass
     except:
         raise
 
-    os.symlink(config_file,"./config.py")
-    import config as CM
+    os.symlink(config_file,"./musc_config.py")
+    import musc_config as CM
 
     # Get configuration:
     atts = {}
@@ -260,8 +260,3 @@ if __name__ == '__main__':
         else:
             logger.info('Run data for {0}/{1} already installed, loverwrite={2}, lupdate={3}'.format(case, subcase, loverwrite, lupdate_RUN))
 
-    if os.path.exists('./config.py'):
-        os.remove("./config.py")
-    if os.path.exists('./config.pyc'):
-        os.remove("./config.pyc")
- 
