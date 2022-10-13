@@ -1,8 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import os
+
 REP_MUSC = os.getcwd()
+EMS_DIR = os.environ["EMS_DIR"]
 
 ############# Begin editing
 
@@ -11,36 +13,38 @@ GROUP = '46t1'
 # EXPID will be taken from this file name following the convention config_EXPID.py
 
 # Binaries
-bindir = '/home/ewhelan/HARMONIE_BIN/MAKEUP_46h1_DEV/bin'
+#bindir = '/data/ewhelan/hm_musc/cy46aaab/lib/bin'
+bindir = '/path/to/hm_musc/expname/lib/bin'
 MASTER = os.path.join(bindir, 'MASTERODB')
-#PGD
-#PREP
+PGD = os.path.join(bindir, 'PGD')
+PREP = os.path.join(bindir, 'PREP')
 ASCII2FA = os.path.join(bindir, 'ACADFA1D')
 
 # Namelists
-ATMNAM = os.path.join(REP_MUSC, 'namelist/AROME/namarp_46t1_AROME_OPER')
-#ATMNAM = os.path.join(REP_MUSC, 'namelist/AROME/al46t1_arome-op1.01.nam-namel_previ_dyn_prod')
-#SFXNAM
+ATMNAM = os.path.join(EMS_DIR, 'share/namelist/AROME/namarp_46t1_AROME_OPER')
+SFXNAM = os.path.join(EMS_DIR, 'share/namelist/SURFEX/nam.sfx.46t1.test')
 
 # Model configuration
-vert_grid = os.path.join(REP_MUSC, 'grid/L60_AROME.dta')
+vert_grid = os.path.join(EMS_DIR, 'share/grid/L60_AROME.dta')
 timestep = 50
 
 # Postprocessing
-dirpost = os.path.join(REP_MUSC,'post')
+dirpost = os.path.join(EMS_DIR,'share/post')
 variablesDict = 'variables.py'
-defaultConfigPost = 'config_default.py'
+defaultConfigPost = 'config_ARMCU.py'
 caseDependent = True
 
 # EMS configuration
+model = 'AROME'
 #model = 'AROME46h1'
-model = 'AROME46t1'
+#model = 'AROME46t1'
+
 lforc_ascii = False
-lsurfex = False
-#sfxfmt
+lsurfex = True
+sfxfmt = 'FA'
 loverwrite = True
 lupdate_ATM = True
-#lupdate_SFX
+lupdate_SFX = True
 lupdate_RUN = True
 
 # ecoclimap data
