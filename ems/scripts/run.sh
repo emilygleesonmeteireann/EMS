@@ -237,6 +237,7 @@ then
 
   # seems necessary in some circumstances (deep shells?)
   unset PYTHONHOME
+  export PYTHONPATH=$(pwd):${PYTHONPATH}
   ./ems_convertLFA2nc.py
 
 fi
