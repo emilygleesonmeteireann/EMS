@@ -21,7 +21,7 @@ PREP = os.path.join(bindir, 'PREP')
 ASCII2FA = os.path.join(bindir, 'ACADFA1D')
 
 # Namelists
-ATMNAM = os.path.join(EMS_DIR, 'share/namelist/AROME/namarp_46t1_AROME_OPER')
+ATMNAM = os.path.join(EMS_DIR, 'share/namelist/AROME/namarp_46h1_AROME_OPER')
 SFXNAM = os.path.join(EMS_DIR, 'share/namelist/SURFEX/nam.sfx.46t1.test')
 
 # Model configuration
