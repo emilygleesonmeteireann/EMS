@@ -2,7 +2,7 @@
 saveall = False
 
 
-var2save = ['pf','zf','theta','temp','qv','u','v','wap','ql','qi','qr','qsn','rneb','cc','prw','rain','lhf','shf','tsurf','hur','Q1','Q2','qlc','qic','qrc','qsnc','tke','w_up','Mf','alpha_up','ustar','z0','dTv_up','T_up','qv_up','eps_u','det_u','B_up','eps_u_org','eps_u_tur','det_u_org','det_u_tur','lwp','iwp','tnqt','tnthl']
+var2save = ['pf','zf','theta','temp','qv','u','v','wap','ql','qi','qr','qsn','rneb','cc','prw','rain','lhf','shf','tsurf','hur','Q1','Q2','qlc','qic','qrc','qsnc','tke','w_up','Mf','alpha_up','ustar','z0','dTv_up','T_up','qv_up','eps_u','B_up','eps_u_org','eps_u_tur','lwp','iwp','tnqt','tnthl']
 
 #var2save = var2save + ['tntrlw','tntrsw','tntpbl','tntlscp','tntc','tntd','tnupbl','tnuc','tnud','tnvpbl','tnvc','tnvd','tntadv','tntnudg','tnugeo','tnvgeo','tendu','tendv','tendq','tendh']
 
