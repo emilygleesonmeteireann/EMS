@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 # Copyright (c) Météo France (2014-)
 # This software is governed by the CeCILL-C license under French law.
@@ -115,6 +115,17 @@ def prep_init_forc_atm(
     nt, = case.variables['ps_forc'].data.shape
 
     #---------------------------------------------------------------
+    # Surface temperature
+    #---------------------------------------------------------------
+
+    if 'ts_forc' in case.variables:
+        variablesAux['SURFTEMPERATURE'] = case.variables['ts_forc'].data[0]
+    elif 'tskin' in case.variables:
+        variablesAux['SURFTEMPERATURE'] = case.variables['tskin'].data[0]
+    elif 'ta' in case.variables:
+        variablesAux['SURFTEMPERATURE'] = case.variables['ta'].data[0, 0]
+
+    #---------------------------------------------------------------
     # Half-level pressure
     #---------------------------------------------------------------
 
@@ -122,14 +133,14 @@ def prep_init_forc_atm(
         lines = f.readlines()
     nlev_out = len(lines) - 1
 
-    vah = np.zeros((nlev_out + 1), dtype=np.float)
-    vbh = np.zeros((nlev_out + 1), dtype=np.float)
+    vah = np.zeros((nlev_out + 1), dtype=np.float32)
+    vbh = np.zeros((nlev_out + 1), dtype=np.float32)
     for ilev in range(nlev_out + 1):
         line = lines[ilev].split()
         vah[ilev] = float(line[0])
         vbh[ilev] = float(line[1])
 
-    pph = np.zeros((nt,nlev_out + 1),dtype=np.float)
+    pph = np.zeros((nt,nlev_out + 1),dtype=np.float32)
     for ilev in range(nlev_out + 1):
         pph[:,ilev] = vah[ilev] + vbh[ilev]*case.variables['ps_forc'].data[:]	  
 
@@ -137,7 +148,7 @@ def prep_init_forc_atm(
     # Full-level pressure
     #---------------------------------------------------------------
 
-    ppf = np.zeros((nt, nlev_out), dtype=np.float)
+    ppf = np.zeros((nt, nlev_out), dtype=np.float32)
     pph = np.where(pph < 0.1,0.1,pph)
     for ilev in range(nlev_out):
         # For reproductibility with CNRM machines
@@ -237,7 +248,10 @@ def prep_init_forc_atm(
             dataout_forc['tnta_adv'] = 0
         if case.attributes['radiation'] == 'tend':
             dataout_forc['tnta_rad'] = prep_forcing('tnta_rad')
-            dataout_forc['tnta_adv'] += dataout_forc['tnta_rad']
+            if dataout_forc['tnta_adv'] == 0:
+                dataout_forc['tnta_adv'] = dataout_forc['tnta_rad']
+            else:
+                dataout_forc['tnta_adv'].data += dataout_forc['tnta_rad'].data
 
     if case.attributes['adv_qv'] == 1:
         nb_f += 1
@@ -323,7 +337,7 @@ def prep_init_forc_atm(
             f.write(floatfmt.format(a) + '\n')
 
     with open(nam1d, 'w') as g:
-        g.write('&NAM1D')
+        g.write('&NAM1D\n')
         g.write('  LMAP    = .FALSE.,\n')
         g.write('  IFLEV   = {0},\n'.format(int(nlev_out)))
         g.write('  ZDELY   = 250000.,\n')
@@ -374,7 +388,7 @@ def prep_init_forc_atm(
             write_forcing_in_nam1d(g, dataout_forc['tnua_adv'].data, 'U ADV', wl=True)
             write_forcing_in_nam1d(g, dataout_forc['tnva_adv'].data, 'V ADV', wl=True)
 
-        if case.attributes['adv_ta'] == 1:
+        if case.attributes['adv_ta'] == 1 or case.attributes['radiation'] == 'tend':
             write_forcing_in_nam1d(g, dataout_forc['tnta_adv'].data, 'T ADV', wl=True)
 
         if case.attributes['adv_qv'] == 1:

@@ -6,7 +6,7 @@ set -e
 # User specific defaults
 
 # EMS Version
-EMS_VERSION=2.3
+EMS_VERSION=2.4.3
 
 # Directory where EMS is installed
 REP_EMS=$HOME/Tools/EMS/V${EMS_VERSION}
@@ -20,6 +20,9 @@ DEBUG=0
 # Testing. So fatr only on CNRM computer 
 # and for ARPEGE-Climat 6.3.2
 TESTS="n"
+
+# Force to remove already installed directories
+REMOVE="n"
 
 #####################################################
 
@@ -42,7 +45,7 @@ ${bold}NAME${normal}
 
 ${bold}USAGE${normal}
         ${PROGNAME} [-i <install-directory>] [-r <musc-run-directory>]
-        [-v <ems-version>] [ -d ] [ -t ][ -h ]
+        [-v <ems-version>] [ -d ] [ -t ] [ -f ] [ -h ]
 
 ${bold}DESCRIPTION${normal}
         Description of what the EMS install script does
@@ -63,6 +66,9 @@ ${bold}OPTIONS${normal}
 
         -d Debug! Add debug information with set -xv
 
+        -f Force to remove already installed directories
+           that is $REP_EMS and $REP_MUSC
+
         -h Help! Print usage information.
 
 USAGE
@@ -75,7 +81,7 @@ USAGE=0
 
 #####################################################
 
-while getopts i:r:v:dth option
+while getopts i:r:v:dtfh option
 do
   case $option in
     i)
@@ -92,6 +98,9 @@ do
        ;;
     t)
        TESTS="y"
+       ;;
+    f)
+       REMOVE="y"
        ;;
     h)
        USAGE=1
@@ -119,25 +128,40 @@ DIR0=`pwd`
 if [ -d "$REP_EMS" ]; then
   echo "REP_EMS="$REP_EMS
   echo "REP_EMS already exists. Please remove it or modify REP_EMS at the top of install.sh"
-  exit
+  echo "You can force removal of REP_EMS using the -f argument"
+  echo "!!! It may remove REP_MUSC if it exists !!!"
+  if [ "$REMOVE" == "y" ]; then
+    /bin/rm -r $REP_EMS
+  else
+    exit
+  fi
 fi
 
 if [ -d "$REP_MUSC" ]; then
   echo "REP_MUSC="$REP_MUSC
   echo "REP_MUSC already exists. Please remove it or modify REP_MUSC at the top of install.sh"
-  exit
+  echo "You can force removal of REP_MUSC using the -f argument"
+  if [ "$REMOVE" == "y" ]; then
+    /bin/rm -r $REP_MUSC
+  else
+    exit
+  fi
 fi
 
 #####################################################
 # Download and install EMS in REP_EMS
-[ -d $REP_EMS ] || mkdir -p $REP_EMS
-cd $REP_EMS
-
-wget https://github.com/romainroehrig/EMS/archive/V${EMS_VERSION}.tar.gz
-tar zxvf V${EMS_VERSION}.tar.gz
-rm -f V${EMS_VERSION}.tar.gz
-mv EMS-${EMS_VERSION}/* .
-rm -rf EMS-${EMS_VERSION}
+if [ "${EMS_VERSION}" == 'git' ]; then
+  git clone https://github.com/romainroehrig/EMS $REP_EMS
+else
+  [ -d $REP_EMS ] || mkdir -p $REP_EMS
+  cd $REP_EMS
+  
+  wget https://github.com/romainroehrig/EMS/archive/V${EMS_VERSION}.tar.gz
+  tar zxvf V${EMS_VERSION}.tar.gz
+  rm -f V${EMS_VERSION}.tar.gz
+  mv EMS-${EMS_VERSION}/* .
+  rm -rf EMS-${EMS_VERSION}
+fi
 
 # Some compilation if you want
 compile="y"
@@ -149,6 +173,16 @@ if [ $compile = "y" ]; then
   make
 
   # ascii2lfa binary
+  #The ASCII2FA_LIBS environment variable can be set (a default value is used if not set)
+  #If set, the variable should contain paths to all the neede lib. Below is an example to link
+  #ascii2fa with libraries from cycle 46t1op1
+  #ASCII2FA_LIBS="/home/common/opt/pack/shared/46t1_op1.01.MPIGFORTRAN920DBL.xfftw/lib/libifsaux.local.a \
+  #               /home/common/sync/gfortran/auxlibs-gcc-9.2.0.so/lib/libmpidummy.a \
+  #               /home/common/sync/gfortran/auxlibs-gcc-9.2.0.so/lib/libgribex.a \
+  #               /home/common/sync/gfortran/eccodes-2.18.0_gcc-9.2.0/lib/libeccodes.a \
+  #               /home/common/sync/gfortran/eccodes-2.18.0_gcc-9.2.0/lib/libeccodes_f90.a \
+  #               /home/common/opt/pack/shared/46t1_op1.01.MPIGFORTRAN920DBL.xfftw/lib/libalgor.local.a"
+  #export ASCII2FA_LIBS
   cd $REP_EMS/aux/ASCII2FA/src
   make all
   make clean
@@ -185,12 +219,12 @@ cd ..
 # Some Testing
 testing="$TESTS"
 
-test_arp631="y"
+test_arp632="y"
 
 if [ $testing = "y" ]; then
 
-  # Testing ARPEGE-Climat 6.3.1
-  if [ $test_arp631 = "y" ]; then
+  # Testing ARPEGE-Climat 6.3.2
+  if [ $test_arp632 = "y" ]; then
     cd $REP_MUSC
     source setenv
 

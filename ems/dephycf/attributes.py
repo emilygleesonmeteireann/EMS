@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on 27 November 2019
@@ -12,6 +12,9 @@ known_attributes = [
             'adv_ta','adv_theta','adv_thetal',
             'radiation',
             'adv_qv','adv_qt','adv_rv','adv_rt',
+            'ini_ta','ini_theta','ini_thetal',
+            'ini_qv','ini_qt','ini_rv','ini_rt',
+            'forc_z','forc_p',
             'forc_wa','forc_wap',
             'forc_geo',
             'nudging_ua','nudging_va',
@@ -34,6 +37,9 @@ required_attributes = [
             'adv_ta','adv_theta','adv_thetal',
             'radiation',
             'adv_qv','adv_qt','adv_rv','adv_rt',
+            'ini_ta','ini_theta','ini_thetal',
+            'ini_qv','ini_qt','ini_rv','ini_rt',
+            'forc_z','forc_p',
             'forc_wa','forc_wap',
             'forc_geo',
             'nudging_ua','nudging_va',

@@ -8,3 +8,9 @@
 *.swo
 #CMake build directory
 build
+# Other compiled files
+*.o
+*.so
+# Perso
+**/tmp.sh
+lfatools
