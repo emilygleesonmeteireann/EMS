@@ -1,4 +1,6 @@
-# EMS - Environment for MUSC Simulations
+# EMS Installation
+
+A copy of the contents of the README
 
 ## Prerequisites
 
