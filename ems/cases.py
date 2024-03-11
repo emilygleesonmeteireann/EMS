@@ -290,6 +290,12 @@ subcases[case] = ['SODANKYLA_2018031512','SODANKYLA_2018031512_NOFORC_NORAD','SO
 data_input[case] = {subcase: rep0 + '/{0}_{1}_SCM_driver.nc'.format(case,subcase)
                              for subcase in subcases[case]}
 
+# ENGDAHL
+case = 'ENGDAHL'
+cases.append(case)
+subcases[case] = ['SCLD','SCLO']
+data_input[case] = {subcase: rep0 + '/{0}_{1}_SCM_driver.nc'.format(case,subcase)
+                             for subcase in subcases[case]}
 
 def available(case=None):
     """
