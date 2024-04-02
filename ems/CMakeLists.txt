@@ -27,6 +27,7 @@ namelist.py
 prep_init_forc_atm_ARPCLIMAT.py
 prep_init_forc_atm_GMAP.py
 prep_init_forc_atm.py
+prep_nam_atm_ALARO.py
 prep_nam_atm_AROME.py
 prep_nam_atm_ARPCLIMAT.py
 prep_nam_atm_ARPPNT.py
