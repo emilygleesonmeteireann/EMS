@@ -8,8 +8,8 @@ EMS_DIR = os.environ["EMS_DIR"]
 
 ############# Begin editing
 
-#GROUP = '46h1'
-GROUP = '46t1'
+GROUP = '46h1'
+#GROUP = '46t1'
 # EXPID will be taken from this file name following the convention config_EXPID.py
 
 # Binaries
@@ -21,7 +21,7 @@ PREP = os.path.join(bindir, 'PREP')
 ASCII2FA = os.path.join(bindir, 'ACADFA1D')
 
 # Namelists
-ATMNAM = os.path.join(EMS_DIR, 'share/namelist/AROME/namarp_46h1_AROME_OPER')
+ATMNAM = os.path.join(EMS_DIR, 'share/namelist/HARMONIE/namarp_46h1_HARMONIE_OPER')
 SFXNAM = os.path.join(EMS_DIR, 'share/namelist/SURFEX/nam.sfx.46t1.test')
 
 # Model configuration
@@ -35,7 +35,7 @@ defaultConfigPost = 'config_ARMCU.py'
 caseDependent = True
 
 # EMS configuration
-model = 'AROME'
+model = 'HARMONIE'
 #model = 'AROME46h1'
 #model = 'AROME46t1'
 

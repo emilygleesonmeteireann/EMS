@@ -95,7 +95,7 @@ def install_atm(model, case, subcase, filecase,
                 timestep, vert_grid_file, #timestep and vertical grid description file
                 nam1d='nam1D_{0}'.format(vert_grid_name), #output namelist
                 ncfile='data_input.nc', #case description
-                logps=(model == 'AROME' or model == 'ARPPNT' or model == 'ALARO'),
+                logps=(model == 'AROME' or model == 'ARPPNT' or model == 'HARMONIE' or model == 'ALARO'),
                 lforc_ascii=lforc_ascii, lsurfex=lsurfex,
                 dirforc=dirforc, dirdiags=dirdiags,
                 save_init=True, file_init='init_{0}.nc'.format(vert_grid_name),
@@ -126,7 +126,7 @@ def install_sfx(model, case, subcase, filecase, repout,
 
     """ Prepare files of atmospheric initial conditions and forcing needed to run MUSC """
 
-    if model not in ['ARPCLIMAT', 'AROME', 'ARPPNT']:
+    if model not in ['ARPCLIMAT', 'AROME', 'ARPPNT','HARMONIE']:
         raise NotImplementedError('SURFEX preparation is not coded for model=', model)
 
     t0 = perf_init()
